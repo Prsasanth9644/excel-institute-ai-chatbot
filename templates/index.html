@@ -1,52 +1,236 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Excel Institute AI Chatbot</title>
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Excel Institute AI Assistant</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
+
 </head>
+
 
 <body>
 
-    <div class="chat-container">
+    <!-- EDUCATION BACKGROUND -->
+    <div class="education-bg">
 
-        <div class="chat-header">
-            <h1>🤖 Excel Institute AI Assistant</h1>
-            <p>College Information Chatbot</p>
+        <div class="edu-icon graduation">🎓</div>
+        <div class="edu-icon books">📚</div>
+        <div class="edu-icon bulb">💡</div>
+        <div class="edu-icon science">🔬</div>
+        <div class="edu-icon laptop">💻</div>
+        <div class="edu-icon notebook">📖</div>
+        <div class="edu-icon school">🏫</div>
+
+        <div class="learn-text">
+            Learn<br>
+            Grow<br>
+            Achieve
         </div>
 
-        <div class="chat-box" id="chat-box">
+    </div>
 
-            <div class="message bot-message">
-                👋 Hello! I'm your Excel Institute AI Assistant.
-                <br>
-                How can I help you?
+
+    <!-- MAIN CHATBOT -->
+
+    <div class="chat-container">
+
+
+        <!-- HEADER -->
+
+        <div class="chat-header">
+
+            <div class="bot-logo">
+                🤖
+            </div>
+
+
+            <div class="header-text">
+
+                <h1>
+                    Excel Institute AI Assistant
+                </h1>
+
+                <p>
+                    College Information Chatbot
+                </p>
+
+            </div>
+
+
+            <div class="online-status">
+
+                <span></span>
+
+                Online
+
             </div>
 
         </div>
+
+
+
+        <!-- CHAT AREA -->
+
+        <div
+            class="chat-box"
+            id="chat-box"
+        >
+
+            <div class="message bot-message">
+
+                <div class="message-icon">
+                    🤖
+                </div>
+
+
+                <div class="message-content">
+
+                    <strong>
+                        Excel AI Assistant
+                    </strong>
+
+
+                    <p>
+                        👋 Hello! Welcome to
+                        <b>Excel Institute.</b>
+                    </p>
+
+
+                    <p>
+                        I can help you with:
+                    </p>
+
+
+                    <!-- QUICK BUTTONS -->
+
+                    <div class="quick-topics">
+
+                        <button
+                            onclick="askQuestion('What courses are available?')"
+                        >
+                            🎓 Courses
+                        </button>
+
+
+                        <button
+                            onclick="askQuestion('BCA eligibility')"
+                        >
+                            📚 Eligibility
+                        </button>
+
+
+                        <button
+                            onclick="askQuestion('What scholarships are available?')"
+                        >
+                            💰 Scholarship
+                        </button>
+
+
+                        <button
+                            onclick="askQuestion('Is hostel available?')"
+                        >
+                            🏠 Hostel
+                        </button>
+
+
+                        <button
+                            onclick="askQuestion('What about placements?')"
+                        >
+                            💼 Placement
+                        </button>
+
+
+                        <button
+                            onclick="askQuestion('Where is Excel College located?')"
+                        >
+                            📍 Location
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- TYPING -->
+
+        <div
+            id="typing-indicator"
+            class="typing-indicator"
+        >
+
+            <span></span>
+            <span></span>
+            <span></span>
+
+            <label>
+                AI is thinking...
+            </label>
+
+        </div>
+
+
+
+        <!-- INPUT -->
 
         <div class="input-area">
 
             <input
                 type="text"
                 id="message"
-                placeholder="Ask your question..."
+                placeholder="Ask anything about Excel Institute..."
                 autocomplete="off"
-                autofocus
             >
 
-            <button id="send-btn" onclick="sendMessage()">
-                Send ➤
+
+            <button
+                id="send-btn"
+                onclick="sendMessage()"
+            >
+
+                Send
+
+                <span>
+                    ➤
+                </span>
+
             </button>
+
+        </div>
+
+
+
+        <!-- FOOTER -->
+
+        <div class="chat-footer">
+
+            <span>
+                🤖 AI-powered college enquiry assistant
+            </span>
+
+            <span>
+                Excel Institute
+            </span>
 
         </div>
 
     </div>
 
+
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </body>
+
 </html>
