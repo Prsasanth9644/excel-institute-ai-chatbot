@@ -459,4 +459,531 @@ COURSES = {
 
     "machine learning": [
         "artificial intelligence and machine learning",
-        "ai&
+        "ai&ml",
+        "ai ml",
+        "aiml",
+        "machine learning",
+    ],
+
+    "cyber security": [
+        "cyber security",
+        "cybersecurity",
+    ],
+
+    "information technology": [
+        "information technology",
+        "information tech",
+        "it course",
+    ],
+
+    "microbiology": [
+        "microbiology",
+    ],
+
+    "biochemistry": [
+        "biochemistry",
+    ],
+
+    "mathematics": [
+        "mathematics",
+        "maths",
+    ],
+
+    "physics": [
+        "physics",
+    ],
+
+    "english": [
+        "english",
+        "english literature",
+    ],
+
+    "visual communication": [
+        "visual communication",
+        "viscom",
+    ],
+
+    "fashion": [
+        "fashion",
+        "costume design",
+        "textile",
+    ],
+
+    "mcom": [
+        "mcom",
+        "m.com",
+    ],
+
+    "msc computer science": [
+        "msc computer science",
+        "m.sc computer science",
+    ],
+}
+
+
+def detect_course(text):
+
+    normalized = normalize(text)
+
+    best_course = None
+    best_length = 0
+
+    for course, aliases in COURSES.items():
+
+        for alias in aliases:
+
+            if alias in normalized:
+
+                if len(alias) > best_length:
+
+                    best_course = course
+                    best_length = len(alias)
+
+    return best_course
+
+
+# ============================================================
+# 5. DATABASE
+# ============================================================
+
+def load_faqs():
+
+    connection = sqlite3.connect(DATABASE)
+
+    cursor = connection.cursor()
+
+    cursor.execute(
+        "SELECT question, answer FROM faq"
+    )
+
+    rows = cursor.fetchall()
+
+    connection.close()
+
+    return rows
+
+
+# ============================================================
+# 6. KEYWORD SIMILARITY
+# ============================================================
+
+def keyword_score(query, document):
+
+    query_words = set(get_tokens(query))
+
+    document_words = set(get_tokens(document))
+
+    if not query_words or not document_words:
+
+        return 0.0
+
+    common = query_words.intersection(document_words)
+
+    total = query_words.union(document_words)
+
+    return len(common) / len(total)
+
+
+# ============================================================
+# 7. FUZZY MATCHING
+# ============================================================
+
+def fuzzy_score(query, document):
+
+    query = normalize(query)
+
+    document = normalize(document)
+
+    return SequenceMatcher(
+        None,
+        query,
+        document
+    ).ratio()
+
+
+# ============================================================
+# 8. INTENT WORD MATCH
+# ============================================================
+
+INTENT_WORDS = {
+
+    "eligibility": [
+        "eligibility",
+        "qualification",
+        "eligible",
+    ],
+
+    "admission": [
+        "admission",
+        "apply",
+        "joining",
+    ],
+
+    "fees": [
+        "fee",
+        "fees",
+        "cost",
+    ],
+
+    "scholarship": [
+        "scholarship",
+    ],
+
+    "hostel": [
+        "hostel",
+    ],
+
+    "placement": [
+        "placement",
+        "career",
+    ],
+
+    "course": [
+        "course",
+        "program",
+        "programme",
+    ],
+
+    "address": [
+        "address",
+        "location",
+        "where",
+    ],
+
+    "contact": [
+        "contact",
+        "phone",
+        "email",
+    ],
+
+    "facilities": [
+        "facility",
+        "facilities",
+        "library",
+        "wifi",
+        "sports",
+    ],
+
+    "rules": [
+        "rule",
+        "dress",
+        "ragging",
+    ],
+
+    "management": [
+        "principal",
+        "chairman",
+        "director",
+    ],
+}
+
+
+# ============================================================
+# 9. AI/NLP RANKING
+# ============================================================
+
+def rank_answers(user_question, rows):
+
+    if not rows:
+
+        return []
+
+    questions = [
+        row[0]
+        for row in rows
+    ]
+
+    normalized_questions = [
+        normalize(q)
+        for q in questions
+    ]
+
+    normalized_user_question = normalize(
+        user_question
+    )
+
+    vectorizer = TfidfVectorizer(
+        ngram_range=(1, 2),
+        sublinear_tf=True
+    )
+
+    try:
+
+        matrix = vectorizer.fit_transform(
+            normalized_questions + [
+                normalized_user_question
+            ]
+        )
+
+        question_matrix = matrix[:-1]
+
+        user_vector = matrix[-1]
+
+        cosine_scores = cosine_similarity(
+            user_vector,
+            question_matrix
+        ).flatten()
+
+    except Exception:
+
+        cosine_scores = [
+            0.0
+            for _ in questions
+        ]
+
+    user_intents = set(
+        detect_intents(user_question)
+    )
+
+    user_institution = detect_institution(
+        user_question
+    )
+
+    user_course = detect_course(
+        user_question
+    )
+
+    ranked = []
+
+    for index, row in enumerate(rows):
+
+        question = row[0]
+        answer = row[1]
+
+        question_lower = question.lower()
+
+        # Main ML similarity
+        tfidf_score = float(
+            cosine_scores[index]
+        )
+
+        # Keyword similarity
+        key_score = keyword_score(
+            user_question,
+            question
+        )
+
+        # Fuzzy similarity
+        fuzzy = fuzzy_score(
+            user_question,
+            question
+        )
+
+        bonus = 0.0
+
+        # Course bonus
+        if user_course:
+
+            aliases = COURSES.get(
+                user_course,
+                []
+            )
+
+            if any(
+                alias in question_lower
+                for alias in aliases
+            ):
+
+                bonus += 0.15
+
+        # Institution bonus
+        if user_institution:
+
+            aliases = INSTITUTIONS.get(
+                user_institution,
+                []
+            )
+
+            if any(
+                alias in question_lower
+                for alias in aliases
+            ):
+
+                bonus += 0.10
+
+        # Intent bonus
+        for intent in user_intents:
+
+            words = INTENT_WORDS.get(
+                intent,
+                []
+            )
+
+            if any(
+                word in question_lower
+                for word in words
+            ):
+
+                bonus += 0.08
+
+                break
+
+        # Combined AI/NLP score
+        final_score = (
+            (tfidf_score * 0.55)
+            + (key_score * 0.20)
+            + (fuzzy * 0.15)
+            + bonus
+        )
+
+        ranked.append(
+            (
+                final_score,
+                question,
+                answer,
+            )
+        )
+
+    ranked.sort(
+        key=lambda item: item[0],
+        reverse=True
+    )
+
+    return ranked
+
+
+# ============================================================
+# 10. MAIN CHATBOT
+# ============================================================
+
+def get_response(user_message):
+
+    if not user_message or not user_message.strip():
+
+        return "Please enter a question."
+
+    normalized = normalize(
+        user_message
+    )
+
+    # Greeting
+    if (
+        len(get_tokens(normalized)) <= 4
+        and any(
+            word in normalized
+            for word in [
+                "hi",
+                "hello",
+                "hey",
+                "vanakkam",
+            ]
+        )
+    ):
+
+        return (
+            "Hello! 👋 I'm your Excel Institute AI Assistant.\n\n"
+            "You can ask me about courses, eligibility, "
+            "admission, fees, scholarships, hostel, "
+            "facilities, placement, address and more."
+        )
+
+    # Thanks
+    if any(
+        word in normalized
+        for word in [
+            "thank you",
+            "thanks",
+            "nandri",
+        ]
+    ):
+
+        return (
+            "You're welcome! 😊 "
+            "Ask me anything about Excel Institute."
+        )
+
+    # Bye
+    if normalized in [
+        "bye",
+        "goodbye",
+        "see you",
+    ]:
+
+        return "Thank you! 👋 Have a great day."
+
+    rows = load_faqs()
+
+    if not rows:
+
+        return (
+            "Sorry, the college information database "
+            "is currently empty."
+        )
+
+    ranked = rank_answers(
+        user_message,
+        rows
+    )
+
+    if not ranked:
+
+        return (
+            "Sorry, I couldn't find a matching answer."
+        )
+
+    best_score = ranked[0][0]
+    best_question = ranked[0][1]
+    best_answer = ranked[0][2]
+
+    # Strong match
+    if best_score >= 0.55:
+
+        return best_answer
+
+    # Topic-aware medium match
+    has_topic = (
+        detect_course(user_message)
+        or detect_institution(user_message)
+        or detect_intents(user_message)
+    )
+
+    if has_topic and best_score >= 0.40:
+
+        return best_answer
+
+    # Low confidence — don't hallucinate
+    return (
+        "I understand your question, but I couldn't "
+        "find a reliable matching answer in my Excel "
+        "Institute database.\n\n"
+        "Try asking with a topic such as:\n"
+        "• Courses\n"
+        "• BCA eligibility\n"
+        "• Admission\n"
+        "• Fees\n"
+        "• Scholarship\n"
+        "• Hostel\n"
+        "• Placement\n"
+        "• Facilities\n"
+        "• Address / Contact"
+    )
+
+
+# ============================================================
+# 11. TEST MODE
+# ============================================================
+
+if __name__ == "__main__":
+
+    print("=" * 60)
+    print("Excel Institute AI/NLP Chatbot")
+    print("Type 'exit' to stop")
+    print("=" * 60)
+
+    while True:
+
+        question = input("\nYou: ")
+
+        if question.lower().strip() in [
+            "exit",
+            "quit",
+        ]:
+
+            print("Bot: Goodbye! 👋")
+
+            break
+
+        print(
+            "Bot:",
+            get_response(question)
+        )
