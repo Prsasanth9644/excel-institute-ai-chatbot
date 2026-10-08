@@ -1,71 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Excel Institute AI Assistant</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
-
 </head>
-
 
 <body>
 
-    <!-- EDUCATION BACKGROUND -->
-    <div class="education-bg">
+<div class="app">
 
-        <div class="edu-icon graduation">🎓</div>
-        <div class="edu-icon books">📚</div>
-        <div class="edu-icon bulb">💡</div>
-        <div class="edu-icon science">🔬</div>
-        <div class="edu-icon laptop">💻</div>
-        <div class="edu-icon notebook">📖</div>
-        <div class="edu-icon school">🏫</div>
+    <!-- ================= SIDEBAR ================= -->
 
-        <div class="learn-text">
-            Learn<br>
-            Grow<br>
-            Achieve
-        </div>
+    <aside class="sidebar">
 
-    </div>
+        <div class="brand">
 
-
-    <!-- MAIN CHATBOT -->
-
-    <div class="chat-container">
-
-
-        <!-- HEADER -->
-
-        <div class="chat-header">
-
-            <div class="bot-logo">
+            <div class="brand-icon">
                 🤖
             </div>
 
+            <div>
+                <h2>Excel Institute</h2>
+                <p>AI Assistant</p>
+            </div>
 
-            <div class="header-text">
+        </div>
 
-                <h1>
-                    Excel Institute AI Assistant
-                </h1>
+        <div class="side-description">
+            Your Guide to Excel Group Institutions
+        </div>
 
-                <p>
-                    College Information Chatbot
-                </p>
+
+        <nav class="menu">
+
+            <button class="menu-item active"
+                    onclick="showSection('chat')">
+                💬
+                <span>Chat</span>
+            </button>
+
+            <button class="menu-item"
+                    onclick="askQuestion('What institutions are available in Excel Group?')">
+                🏛️
+                <span>Institutions</span>
+            </button>
+
+            <button class="menu-item"
+                    onclick="askQuestion('What courses are available?')">
+                🎓
+                <span>Courses</span>
+            </button>
+
+            <button class="menu-item"
+                    onclick="askQuestion('What is the admission procedure?')">
+                📄
+                <span>Admissions</span>
+            </button>
+
+            <button class="menu-item"
+                    onclick="askQuestion('What facilities are available?')">
+                ⚙️
+                <span>Facilities</span>
+            </button>
+
+            <button class="menu-item"
+                    onclick="askQuestion('What is the contact information?')">
+                📞
+                <span>Contact</span>
+            </button>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <div class="graduation-icon">
+                🎓
+            </div>
+
+            <div>Learn</div>
+            <div>Grow</div>
+            <div>Achieve</div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ================= MAIN CHAT ================= -->
+
+    <main class="chat-panel">
+
+        <!-- HEADER -->
+
+        <header class="chat-header">
+
+            <div class="header-left">
+
+                <div class="header-bot">
+                    🤖
+                </div>
+
+                <div>
+                    <h1>Excel Institute AI Assistant</h1>
+                    <p>College Information Chatbot</p>
+                </div>
 
             </div>
 
 
-            <div class="online-status">
+            <div class="online">
 
                 <span></span>
 
@@ -73,148 +122,127 @@
 
             </div>
 
-        </div>
-
+        </header>
 
 
         <!-- CHAT AREA -->
 
-        <div
-            class="chat-box"
-            id="chat-box"
-        >
+        <section class="chat-box"
+                 id="chat-box">
 
-            <div class="message bot-message">
 
-                <div class="message-icon">
+            <!-- BOT WELCOME MESSAGE -->
+
+            <div class="message-row bot-row">
+
+                <div class="avatar">
                     🤖
                 </div>
 
 
-                <div class="message-content">
+                <div>
 
-                    <strong>
-                        Excel AI Assistant
-                    </strong>
+                    <div class="message bot-message">
 
+                        <p>
+                            Hello! 👋 Welcome to
+                            <strong>Excel Institute.</strong>
+                        </p>
 
-                    <p>
-                        👋 Hello! Welcome to
-                        <b>Excel Institute.</b>
-                    </p>
-
-
-                    <p>
-                        I can help you with:
-                    </p>
+                        <p>
+                            I can help you with:
+                        </p>
 
 
-                    <!-- QUICK BUTTONS -->
+                        <div class="quick-buttons">
 
-                    <div class="quick-topics">
+                            <button onclick="askQuestion('What courses are available?')">
+                                🎓 Courses
+                            </button>
 
-                        <button
-                            onclick="askQuestion('What courses are available?')"
-                        >
-                            🎓 Courses
-                        </button>
+                            <button onclick="askQuestion('What is the eligibility?')">
+                                📄 Eligibility
+                            </button>
 
+                            <button onclick="askQuestion('What scholarships are available?')">
+                                💰 Scholarship
+                            </button>
 
-                        <button
-                            onclick="askQuestion('BCA eligibility')"
-                        >
-                            📚 Eligibility
-                        </button>
+                            <button onclick="askQuestion('Is hostel available?')">
+                                🏠 Hostel
+                            </button>
 
+                            <button onclick="askQuestion('What about placement?')">
+                                💼 Placement
+                            </button>
 
-                        <button
-                            onclick="askQuestion('What scholarships are available?')"
-                        >
-                            💰 Scholarship
-                        </button>
+                            <button onclick="askQuestion('Where is Excel Institute located?')">
+                                📍 Location
+                            </button>
 
+                        </div>
 
-                        <button
-                            onclick="askQuestion('Is hostel available?')"
-                        >
-                            🏠 Hostel
-                        </button>
+                    </div>
 
-
-                        <button
-                            onclick="askQuestion('What about placements?')"
-                        >
-                            💼 Placement
-                        </button>
-
-
-                        <button
-                            onclick="askQuestion('Where is Excel College located?')"
-                        >
-                            📍 Location
-                        </button>
-
+                    <div class="time">
+                        <span id="welcome-time"></span>
                     </div>
 
                 </div>
 
             </div>
 
-        </div>
-
+        </section>
 
 
         <!-- TYPING -->
 
-        <div
-            id="typing-indicator"
-            class="typing-indicator"
-        >
+        <div id="typing-indicator"
+             class="typing">
 
             <span></span>
             <span></span>
             <span></span>
 
-            <label>
-                AI is thinking...
-            </label>
+            <label>AI is thinking...</label>
 
         </div>
-
 
 
         <!-- INPUT -->
 
-        <div class="input-area">
+        <div class="input-section">
 
-            <input
-                type="text"
-                id="message"
-                placeholder="Ask anything about Excel Institute..."
-                autocomplete="off"
-            >
+            <div class="input-wrapper">
 
+                <button class="emoji-button">
+                    ☺
+                </button>
 
-            <button
-                id="send-btn"
-                onclick="sendMessage()"
-            >
+                <input
+                    type="text"
+                    id="message"
+                    placeholder="Ask anything about Excel Institute..."
+                    autocomplete="off"
+                >
 
-                Send
+                <button
+                    id="send-btn"
+                    onclick="sendMessage()">
 
-                <span>
                     ➤
-                </span>
+                    <span>Send</span>
 
-            </button>
+                </button>
+
+            </div>
 
         </div>
 
 
-
         <!-- FOOTER -->
 
-        <div class="chat-footer">
+        <footer>
 
             <span>
                 🤖 AI-powered college enquiry assistant
@@ -224,13 +252,40 @@
                 Excel Institute
             </span>
 
-        </div>
+        </footer>
 
-    </div>
+    </main>
+
+</div>
 
 
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+<script>
+
+    const timeElement =
+        document.getElementById("welcome-time");
+
+    const now = new Date();
+
+    timeElement.textContent =
+        now.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+
+
+    function showSection(section) {
+
+        if (section === "chat") {
+
+            document.getElementById("message").focus();
+
+        }
+
+    }
+
+</script>
 
 </body>
-
 </html>
