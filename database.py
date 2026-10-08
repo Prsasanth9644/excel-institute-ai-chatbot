@@ -4,21 +4,30 @@ DATABASE = "college.db"
 
 
 # =========================================================
-# FULL EXCEL GROUP INSTITUTIONS
+# FULL EXCEL INSTITUTIONS GROUP
 # =========================================================
 
 INSTITUTIONS = [
 
-    # ---------------- TECHNICAL CAMPUS ----------------
+    {
+        "name": "Excel College for Commerce and Science",
+        "category": "Arts and Science",
+        "aliases": [
+            "excel college for commerce and science",
+            "commerce and science",
+            "arts and science",
+            "arts science",
+            "eccs"
+        ]
+    },
 
     {
         "name": "Excel Engineering College",
         "category": "Engineering",
         "aliases": [
-            "engineering",
-            "engineering college",
-            "excel engineering",
             "excel engineering college",
+            "engineering college",
+            "engineering",
             "eec"
         ]
     },
@@ -30,8 +39,7 @@ INSTITUTIONS = [
             "architecture",
             "architecture college",
             "planning",
-            "excel architecture",
-            "excel college architecture"
+            "excel architecture"
         ]
     },
 
@@ -48,18 +56,6 @@ INSTITUTIONS = [
     },
 
     {
-        "name": "Excel College for Commerce and Science",
-        "category": "Arts and Science",
-        "aliases": [
-            "commerce and science",
-            "arts and science",
-            "excel commerce",
-            "excel science",
-            "eccs"
-        ]
-    },
-
-    {
         "name": "Excel College of Education",
         "category": "Education",
         "aliases": [
@@ -70,40 +66,25 @@ INSTITUTIONS = [
     },
 
     {
-        "name": "Excel Business School",
-        "category": "Business School",
-        "aliases": [
-            "business school",
-            "management",
-            "excel business",
-            "b school",
-            "mba"
-        ]
-    },
-
-    {
         "name": "Kandhaswamy College of Education",
         "category": "Education",
         "aliases": [
             "kandhaswamy",
-            "kandhaswamy education",
-            "kandhaswamy college"
+            "kandhaswamy college",
+            "kandhaswamy education"
         ]
     },
 
     {
-        "name": "Excel Fitness and Sports Academy",
-        "category": "Sports and Fitness",
+        "name": "Excel Business School",
+        "category": "Business School",
         "aliases": [
-            "fitness",
-            "sports academy",
-            "sports",
-            "excel fitness"
+            "business school",
+            "b school",
+            "management school",
+            "excel business"
         ]
     },
-
-
-    # ---------------- MEDICAL CAMPUS ----------------
 
     {
         "name": "Excel College of Pharmacy",
@@ -126,13 +107,13 @@ INSTITUTIONS = [
     },
 
     {
-        "name": "Excel Institute of Health Science",
-        "category": "Health Science",
+        "name": "Excel Institute of Health Sciences",
+        "category": "Health Sciences",
         "aliases": [
             "health science",
             "health sciences",
             "health science college",
-            "excel health science"
+            "excel health"
         ]
     },
 
@@ -153,7 +134,6 @@ INSTITUTIONS = [
         "aliases": [
             "occupational therapy",
             "occupational therapy college",
-            "ot college",
             "excel occupational therapy"
         ]
     },
@@ -166,8 +146,7 @@ INSTITUTIONS = [
             "naturopathy college",
             "yoga",
             "naturopathy and yoga",
-            "bnys",
-            "excel naturopathy"
+            "bnys"
         ]
     },
 
@@ -190,39 +169,9 @@ INSTITUTIONS = [
             "homoeopathy",
             "homeopathy",
             "homeopathy college",
-            "homoeopathy college",
-            "bhms",
-            "excel homeopathy"
+            "bhms"
         ]
     },
-
-    {
-        "name": "Excel Multispeciality Hospitals",
-        "category": "Hospital",
-        "aliases": [
-            "hospital",
-            "hospitals",
-            "multi speciality hospital",
-            "multispeciality",
-            "excel hospital"
-        ]
-    },
-
-    {
-        "name": "Excel Physiotherapy, Homoeopathy, Siddha, Naturopathy and AYUSH Hospitals",
-        "category": "AYUSH Hospital",
-        "aliases": [
-            "ayush hospital",
-            "ayush",
-            "siddha hospital",
-            "naturopathy hospital",
-            "homoeopathy hospital",
-            "physiotherapy hospital"
-        ]
-    },
-
-
-    # ---------------- SCHOOL ----------------
 
     {
         "name": "Excel Public School",
@@ -231,208 +180,172 @@ INSTITUTIONS = [
             "school",
             "public school",
             "cbse",
-            "excel school",
-            "excel public school"
+            "excel school"
+        ]
+    },
+
+    {
+        "name": "Excel Multispeciality Hospitals",
+        "category": "Hospital and Healthcare",
+        "aliases": [
+            "hospital",
+            "hospitals",
+            "multispeciality",
+            "multi speciality",
+            "excel hospital"
+        ]
+    },
+
+    {
+        "name": "Excel AYUSH Hospitals",
+        "category": "AYUSH Healthcare",
+        "aliases": [
+            "ayush",
+            "ayush hospital",
+            "siddha hospital",
+            "naturopathy hospital",
+            "homoeopathy hospital"
+        ]
+    },
+
+    {
+        "name": "Excel Fitness and Sports Academy",
+        "category": "Sports and Fitness",
+        "aliases": [
+            "fitness",
+            "sports",
+            "sports academy",
+            "excel fitness"
         ]
     }
 ]
 
 
 # =========================================================
-# GENERAL INFORMATION
+# COURSES
 # =========================================================
 
-GENERAL_FAQS = [
+COURSES = {
+
+    "BCA": {
+        "name": "Bachelor of Computer Applications",
+        "institution": "Excel College for Commerce and Science",
+        "aliases": ["bca", "computer application", "computer applications"]
+    },
+
+    "B.Com": {
+        "name": "Bachelor of Commerce",
+        "institution": "Excel College for Commerce and Science",
+        "aliases": ["bcom", "b.com", "commerce"]
+    },
+
+    "BBA": {
+        "name": "Bachelor of Business Administration",
+        "institution": "Excel College for Commerce and Science",
+        "aliases": ["bba", "business administration"]
+    },
+
+    "B.Sc Computer Science": {
+        "name": "B.Sc Computer Science",
+        "institution": "Excel College for Commerce and Science",
+        "aliases": ["bsc computer science", "b.sc computer science"]
+    },
+
+    "B.Arch": {
+        "name": "Bachelor of Architecture",
+        "institution": "Excel College of Architecture and Planning",
+        "aliases": ["barch", "b.arch", "architecture"]
+    },
+
+    "BSMS": {
+        "name": "Bachelor of Siddha Medicine and Surgery",
+        "institution": "Excel Siddha Medical College and Research Centre",
+        "aliases": ["bsms", "siddha medicine", "siddha"]
+    },
+
+    "BHMS": {
+        "name": "Bachelor of Homoeopathic Medicine and Surgery",
+        "institution": "Excel Homoeopathy Medical College",
+        "aliases": ["bhms", "homoeopathy", "homeopathy"]
+    },
+
+    "BNYS": {
+        "name": "Bachelor of Naturopathy and Yogic Sciences",
+        "institution": "Excel Medical College for Naturopathy and Yoga",
+        "aliases": ["bnys", "naturopathy", "yoga"]
+    }
+}
+
+
+# =========================================================
+# GENERAL FAQ DATABASE
+# =========================================================
+
+FAQS = [
 
     (
-        "excel group institutions",
-        "Excel Group Institutions is a multidisciplinary educational group with Technical Campus and Medical Campus institutions."
+        "what institutions are available",
+        "Excel Group Institutions covers Arts and Science, Engineering, Architecture, Polytechnic and ITI, Education, Business School, Pharmacy, Nursing, Health Sciences, Physiotherapy, Occupational Therapy, Naturopathy and Yoga, Siddha, Homoeopathy, School, Hospitals and other healthcare institutions."
     ),
 
     (
-        "excel institutions",
-        "Excel Group Institutions includes Engineering, Architecture, Polytechnic and ITI, Commerce and Science, Education, Business School, Pharmacy, Nursing, Health Science, Physiotherapy, Occupational Therapy, Naturopathy and Yoga, Siddha, Homoeopathy, School and healthcare institutions."
+        "what colleges are there",
+        "Excel Group Institutions includes Excel College for Commerce and Science, Excel Engineering College, Excel College of Architecture and Planning, Excel Polytechnic College and ITI, Excel College of Education, Kandhaswamy College of Education, Excel Business School, Excel College of Pharmacy, Excel Nursing College, Excel Institute of Health Sciences, Excel College of Physiotherapy and Research Centre, Excel College of Occupational Therapy, Excel Medical College for Naturopathy and Yoga, Excel Siddha Medical College and Research Centre, Excel Homoeopathy Medical College, Excel Public School, Excel Multispeciality Hospitals and Excel AYUSH Hospitals."
     ),
 
     (
-        "what colleges are there in excel",
-        "Excel Group Institutions includes Excel Engineering College, Excel College of Architecture and Planning, Excel Polytechnic College and ITI, Excel College for Commerce and Science, Excel College of Education, Excel Business School, Excel College of Pharmacy, Excel Nursing College, Excel Institute of Health Science, Excel College of Physiotherapy and Research Centre, Excel College of Occupational Therapy, Excel Medical College for Naturopathy and Yoga, Excel Siddha Medical College and Research Centre, Excel Homoeopathy Medical College and Excel Public School."
+        "where is excel located",
+        "Excel Group Institutions is located at NH-544, Salem Main Road, Sankari West, Pallakkapalayam, Komarapalayam, Namakkal District, Tamil Nadu - 637303."
     ),
 
     (
-        "where is excel institutions located",
+        "excel address",
         "Excel Group Institutions is located at NH-544, Salem Main Road, Sankari West, Pallakkapalayam, Komarapalayam, Namakkal District, Tamil Nadu - 637303."
     ),
 
     (
         "excel contact",
-        "The general contact number listed by Excel Group Institutions is +91 99655 23999 and the email is info@excelcolleges.com."
+        "The general contact number is +91 99655 23999 and the email is info@excelcolleges.com."
     ),
 
     (
-        "excel hostel",
-        "Excel Group Institutions provides hostel facilities for students. Hostel information may vary by institution and programme."
+        "hostel",
+        "Excel Group Institutions provides hostel facilities for students. Hostel availability and details can vary depending on the institution and programme."
     ),
 
     (
-        "excel transport",
+        "transport",
         "Excel Group Institutions provides transport facilities for students."
     ),
 
     (
-        "excel sports",
-        "Excel Group Institutions provides sports and games facilities, including sports infrastructure on campus."
+        "placement",
+        "Excel Group Institutions has training and placement activities for students. Placement details can vary by institution and programme."
     ),
 
     (
-        "excel admission",
-        "Excel Group Institutions has an admission process for its different institutions and programmes. Admission requirements vary according to the institution and course."
+        "scholarship",
+        "Excel Group Institutions provides scholarship opportunities subject to applicable eligibility criteria and programme requirements."
     ),
 
     (
-        "excel scholarship",
-        "Excel Group Institutions provides admission with scholarship opportunities. Scholarship eligibility and amount can vary according to the applicable programme and criteria."
+        "facilities",
+        "Excel Group Institutions provides various student facilities including academic infrastructure, laboratories, library, sports facilities, hostel and transport facilities."
     )
 ]
 
 
 # =========================================================
-# INSTITUTION FAQ TEMPLATES
-# =========================================================
-
-INSTITUTION_FAQS = []
-
-for institution in INSTITUTIONS:
-
-    name = institution["name"]
-    category = institution["category"]
-
-    INSTITUTION_FAQS.extend([
-
-        (
-            f"{name} details",
-            f"{name} is part of Excel Group Institutions and comes under the {category} category."
-        ),
-
-        (
-            f"{name} courses",
-            f"{name} offers programmes related to {category}. Course availability and current programmes should be checked for the specific academic year."
-        ),
-
-        (
-            f"{name} eligibility",
-            f"Eligibility for {name} depends on the specific programme. The required qualification can vary from course to course."
-        ),
-
-        (
-            f"{name} admission",
-            f"Admission to {name} depends on the programme and applicable admission requirements."
-        ),
-
-        (
-            f"{name} hostel",
-            f"Hostel facilities are available within the Excel Group campus facilities. Availability can depend on the institution and programme."
-        ),
-
-        (
-            f"{name} facilities",
-            f"{name} is part of Excel Group Institutions, which provides student facilities such as campus infrastructure, transport, sports and hostel facilities."
-        ),
-
-        (
-            f"{name} location",
-            f"{name} is part of Excel Group Institutions located at NH-544, Salem Main Road, Sankari West, Pallakkapalayam, Komarapalayam, Namakkal District, Tamil Nadu - 637303."
-        )
-    ])
-
-
-# =========================================================
-# COURSE INFORMATION
-# =========================================================
-
-COURSES = [
-
-    ("BCA", "Bachelor of Computer Applications", "Commerce and Science"),
-
-    ("B.Com", "Bachelor of Commerce", "Commerce and Science"),
-
-    ("BBA", "Bachelor of Business Administration", "Commerce and Science"),
-
-    ("B.Sc Computer Science",
-     "Bachelor of Science in Computer Science",
-     "Commerce and Science"),
-
-    ("B.A English",
-     "Bachelor of Arts in English",
-     "Commerce and Science"),
-
-    ("B.Sc Microbiology",
-     "Bachelor of Science in Microbiology",
-     "Commerce and Science"),
-
-    ("B.Sc Biochemistry",
-     "Bachelor of Science in Biochemistry",
-     "Commerce and Science"),
-
-    ("B.Sc Visual Communication",
-     "Bachelor of Science in Visual Communication",
-     "Commerce and Science"),
-
-    ("B.Arch",
-     "Bachelor of Architecture",
-     "Architecture"),
-
-    ("M.Arch",
-     "Master of Architecture",
-     "Architecture"),
-
-    ("DAE Automobile Engineering",
-     "Diploma in Automobile Engineering",
-     "Polytechnic"),
-
-    ("DCE Civil Engineering",
-     "Diploma in Civil Engineering",
-     "Polytechnic"),
-
-    ("DECE Electronics and Communication Engineering",
-     "Diploma in Electronics and Communication Engineering",
-     "Polytechnic"),
-
-    ("DEEE Electrical and Electronics Engineering",
-     "Diploma in Electrical and Electronics Engineering",
-     "Polytechnic"),
-
-    ("DME Mechanical Engineering",
-     "Diploma in Mechanical Engineering",
-     "Polytechnic"),
-
-    ("BSMS",
-     "Bachelor of Siddha Medicine and Surgery",
-     "Siddha"),
-
-    ("BHMS",
-     "Bachelor of Homoeopathic Medicine and Surgery",
-     "Homoeopathy"),
-
-    ("BNYS",
-     "Bachelor of Naturopathy and Yogic Sciences",
-     "Naturopathy and Yoga")
-]
-
-
-# =========================================================
-# DATABASE CREATION
+# CREATE DATABASE
 # =========================================================
 
 def create_database():
 
-    con = sqlite3.connect(DATABASE)
+    connection = sqlite3.connect(DATABASE)
 
-    cursor = con.cursor()
+    cursor = connection.cursor()
 
-    cursor.execute("""
-        DROP TABLE IF EXISTS faq
-    """)
+    cursor.execute("DROP TABLE IF EXISTS faq")
 
     cursor.execute("""
         CREATE TABLE faq (
@@ -442,28 +355,81 @@ def create_database():
         )
     """)
 
-    # General FAQs
-    cursor.executemany(
-        "INSERT INTO faq (question, answer) VALUES (?, ?)",
-        GENERAL_FAQS
-    )
+    # Add general FAQs
+    for question, answer in FAQS:
 
-    # Institution FAQs
-    cursor.executemany(
-        "INSERT INTO faq (question, answer) VALUES (?, ?)",
-        INSTITUTION_FAQS
-    )
+        cursor.execute(
+            "INSERT INTO faq (question, answer) VALUES (?, ?)",
+            (question, answer)
+        )
 
-    # Course FAQs
-    course_faqs = []
+    # Add institution FAQs
+    for institution in INSTITUTIONS:
 
-    for short_name, full_name, category in COURSES:
+        name = institution["name"]
+        category = institution["category"]
 
-        course_faqs.extend([
+        institution_questions = [
 
             (
-                f"{short_name} course",
-                f"{full_name} is a programme associated with the {category} category of Excel Group Institutions."
+                f"{name} details",
+                f"{name} is part of Excel Group Institutions and comes under the {category} category."
+            ),
+
+            (
+                f"{name} information",
+                f"{name} is an institution under Excel Group Institutions. It comes under the {category} category."
+            ),
+
+            (
+                f"{name} course",
+                f"{name} offers programmes related to {category}. Current programme availability depends on the academic year."
+            ),
+
+            (
+                f"{name} eligibility",
+                f"Eligibility for {name} depends on the specific programme. Different courses may have different eligibility requirements."
+            ),
+
+            (
+                f"{name} admission",
+                f"Admission to {name} depends on the selected programme and the applicable admission requirements."
+            ),
+
+            (
+                f"{name} hostel",
+                f"Hostel facilities are available within Excel Group campus facilities. Availability can vary by institution and programme."
+            ),
+
+            (
+                f"{name} facilities",
+                f"{name} is part of Excel Group Institutions and students can access applicable campus facilities such as academic infrastructure, hostel, transport and sports facilities."
+            ),
+
+            (
+                f"{name} location",
+                f"{name} is part of Excel Group Institutions located at NH-544, Salem Main Road, Sankari West, Pallakkapalayam, Komarapalayam, Namakkal District, Tamil Nadu - 637303."
+            )
+        ]
+
+        for question, answer in institution_questions:
+
+            cursor.execute(
+                "INSERT INTO faq (question, answer) VALUES (?, ?)",
+                (question, answer)
+            )
+
+    # Add course FAQs
+    for short_name, details in COURSES.items():
+
+        full_name = details["name"]
+        institution = details["institution"]
+
+        course_questions = [
+
+            (
+                f"{short_name} details",
+                f"{full_name} is offered under {institution}."
             ),
 
             (
@@ -473,31 +439,39 @@ def create_database():
 
             (
                 f"{short_name} admission",
-                f"Admission requirements for {full_name} depend on the applicable academic and admission rules."
+                f"Admission for {full_name} depends on the applicable admission requirements and academic rules."
             ),
 
             (
-                f"{short_name} details",
-                f"{full_name} is one of the programmes associated with Excel Group Institutions."
+                f"{short_name} course",
+                f"{full_name} is associated with {institution}."
             )
-        ])
+        ]
 
-    cursor.executemany(
-        "INSERT INTO faq (question, answer) VALUES (?, ?)",
-        course_faqs
-    )
+        for question, answer in course_questions:
 
-    con.commit()
-    con.close()
+            cursor.execute(
+                "INSERT INTO faq (question, answer) VALUES (?, ?)",
+                (question, answer)
+            )
 
-    print("Full Excel Group database created successfully!")
-    print("Institutions added:", len(INSTITUTIONS))
-    print("Courses added:", len(COURSES))
+    connection.commit()
 
+    count = cursor.execute(
+        "SELECT COUNT(*) FROM faq"
+    ).fetchone()[0]
 
-# =========================================================
-# RUN
-# =========================================================
+    connection.close()
+
+    print()
+    print("==========================================")
+    print("FULL EXCEL GROUP DATABASE CREATED")
+    print("==========================================")
+    print("Institutions :", len(INSTITUTIONS))
+    print("Courses      :", len(COURSES))
+    print("FAQ records  :", count)
+    print("==========================================")
+
 
 if __name__ == "__main__":
     create_database()
