@@ -14,7 +14,6 @@ body {
 /* =========================
    FULL SCREEN BACKGROUND
    ========================= */
-
 .experience {
     position: relative;
     width: 100%;
@@ -30,17 +29,46 @@ body {
         radial-gradient(circle at 15% 20%,
             rgba(77, 220, 255, 0.45),
             transparent 25%),
-
         radial-gradient(circle at 85% 80%,
             rgba(0, 180, 255, 0.35),
             transparent 28%),
-
         linear-gradient(
             135deg,
             #03466e 0%,
             #087fa9 45%,
             #024d78 100%
         );
+}
+
+
+.chat-app {
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    transform: translate(-50%, -50%);
+
+    z-index: 10;
+
+    width: 850px;
+    height: 82vh;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    background: #ffffff;
+
+    border-radius: 28px;
+
+    border: 1px solid rgba(255,255,255,0.9);
+
+    box-shadow:
+        0 30px 80px rgba(0,0,0,0.35),
+        0 5px 20px rgba(0,0,0,0.12);
+}
 }
 
 
