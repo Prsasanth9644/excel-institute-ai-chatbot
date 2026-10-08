@@ -5,65 +5,72 @@ from difflib import SequenceMatcher
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
+from database import INSTITUTIONS, COURSES
+
 
 DATABASE = "college.db"
 
 
-# ============================================================
-# 1. TEXT NORMALIZATION
-# ============================================================
+# =========================================================
+# TEXT NORMALIZATION
+# =========================================================
 
 REPLACEMENTS = {
-    "eligiblity": "eligibility",
-    "eligiblity": "eligibility",
-    "qualifiction": "qualification",
-    "admisson": "admission",
-    "admsn": "admission",
-    "placment": "placement",
-    "scholrship": "scholarship",
-    "scholar ship": "scholarship",
+
     "collage": "college",
     "colleg": "college",
+    "collge": "college",
 
-    # Tanglish
-    "padika": "study",
-    "padikka": "study",
-    "padipu": "course",
-    "padippu": "course",
-    "join panna": "admission",
-    "join pannalama": "admission",
-    "join panlama": "admission",
+    "admisson": "admission",
+    "admisssion": "admission",
 
-    "enga": "where",
-    "yenga": "where",
-    "engae": "where",
+    "eligiblity": "eligibility",
+    "eligibilty": "eligibility",
 
-    "evlo": "how much",
-    "evalo": "how much",
+    "placment": "placement",
+    "scholrship": "scholarship",
 
-    "ethana": "how many",
+    "hostel iruka": "hostel",
+    "hostel irukka": "hostel",
+    "hostel available ah": "hostel",
 
     "iruka": "available",
     "irukka": "available",
-    "irukku": "available",
+    "irukaa": "available",
 
-    "venum": "need",
-    "venuma": "need",
+    "enga": "where",
+    "yenga": "where",
+
+    "ethana": "how many",
+    "evlo": "how much",
+    "evalo": "how much",
+
+    "padika": "study",
+    "padikka": "study",
+    "padikkanum": "study",
+
+    "venum": "want",
+    "venuma": "want",
 
     "sollu": "tell",
     "sollunga": "tell",
+
+    "enna": "what",
+    "epdi": "how",
+    "eppadi": "how"
 }
 
 
 STOP_WORDS = {
+    "a",
+    "an",
     "the",
     "is",
     "are",
     "am",
     "was",
     "were",
-    "a",
-    "an",
+    "be",
     "to",
     "of",
     "in",
@@ -86,332 +93,214 @@ STOP_WORDS = {
     "please",
     "tell",
     "about",
-
-    # Tanglish filler words
+    "what",
+    "how",
+    "want",
+    "available",
+    "college",
     "da",
     "macha",
-    "ah",
-    "aa",
-    "nu",
-    "la",
-    "um",
-    "enna",
-    "epdi",
-    "eppadi",
-    "sollu",
-    "sollunga",
+    "ah"
 }
 
 
+# =========================================================
+# INTENTS
+# =========================================================
+
+INTENTS = {
+
+    "course": [
+        "course",
+        "courses",
+        "program",
+        "programme",
+        "degree",
+        "study",
+        "படிப்பு",
+        "பாடநெறி"
+    ],
+
+    "eligibility": [
+        "eligibility",
+        "qualification",
+        "eligible",
+        "thaguthi",
+        "தகுதி"
+    ],
+
+    "admission": [
+        "admission",
+        "apply",
+        "application",
+        "join",
+        "joining",
+        "சேர்க்கை"
+    ],
+
+    "fees": [
+        "fee",
+        "fees",
+        "cost",
+        "amount",
+        "charges",
+        "கட்டணம்"
+    ],
+
+    "scholarship": [
+        "scholarship",
+        "financial aid",
+        "உதவித்தொகை"
+    ],
+
+    "hostel": [
+        "hostel",
+        "accommodation",
+        "விடுதி",
+        "தங்கும் விடுதி"
+    ],
+
+    "placement": [
+        "placement",
+        "placements",
+        "job",
+        "career",
+        "வேலை"
+    ],
+
+    "facilities": [
+        "facility",
+        "facilities",
+        "library",
+        "lab",
+        "laboratory",
+        "wifi",
+        "canteen",
+        "sports",
+        "transport",
+        "bus",
+        "atm",
+        "வசதி"
+    ],
+
+    "address": [
+        "address",
+        "location",
+        "where",
+        "எங்கே",
+        "முகவரி"
+    ],
+
+    "contact": [
+        "contact",
+        "phone",
+        "mobile",
+        "number",
+        "email",
+        "mail",
+        "தொடர்பு"
+    ],
+
+    "institution": [
+        "college",
+        "institution",
+        "campus",
+        "group",
+        "excel"
+    ]
+}
+
+
+# =========================================================
+# NORMALIZE
+# =========================================================
+
 def normalize(text):
 
-    text = str(text).lower().strip()
+    text = (text or "").lower().strip()
 
     for old, new in sorted(
         REPLACEMENTS.items(),
         key=lambda item: len(item[0]),
         reverse=True
     ):
+
         text = text.replace(old, new)
 
-    # Keep English, numbers, spaces and Tamil characters
     text = re.sub(
-        r"[^\w\s\u0B80-\u0BFF&.+-]",
+        r"[^\w\s\u0B80-\u0BFF.+&-]",
         " ",
         text
     )
 
-    text = re.sub(r"\s+", " ", text).strip()
-
-    return text
-
-
-def get_tokens(text):
-
-    text = normalize(text)
-
-    tokens = re.findall(
-        r"[\w\u0B80-\u0BFF]+",
+    text = re.sub(
+        r"\s+",
+        " ",
         text
     )
 
+    return text.strip()
+
+
+# =========================================================
+# TOKENS
+# =========================================================
+
+def get_tokens(text):
+
+    words = re.findall(
+        r"[\w\u0B80-\u0BFF]+",
+        normalize(text)
+    )
+
     return [
-        token
-        for token in tokens
-        if token not in STOP_WORDS and len(token) > 1
+        word
+        for word in words
+        if word not in STOP_WORDS
+        and len(word) > 1
     ]
 
 
-# ============================================================
-# 2. INTENT DETECTION
-# ============================================================
+# =========================================================
+# INTENT DETECTION
+# =========================================================
 
-INTENT_PATTERNS = {
+def detect_intent(text):
 
-    "greeting": [
-        r"\bhi\b",
-        r"\bhello\b",
-        r"\bhey\b",
-        r"\bvanakkam\b",
-        r"good morning",
-        r"good afternoon",
-        r"good evening",
-    ],
-
-    "thanks": [
-        r"thank you",
-        r"thanks",
-        r"nandri",
-    ],
-
-    "bye": [
-        r"\bbye\b",
-        r"goodbye",
-        r"see you",
-    ],
-
-    "eligibility": [
-        r"eligibility",
-        r"qualification",
-        r"eligible",
-        r"qualify",
-        r"தகுதி",
-    ],
-
-    "admission": [
-        r"admission",
-        r"apply",
-        r"application",
-        r"joining",
-        r"join",
-        r"admit",
-        r"சேர்க்கை",
-    ],
-
-    "fees": [
-        r"fee",
-        r"fees",
-        r"tuition",
-        r"cost",
-        r"amount",
-        r"charges",
-        r"கட்டணம்",
-    ],
-
-    "scholarship": [
-        r"scholarship",
-        r"scholarships",
-        r"financial aid",
-        r"உதவித்தொகை",
-    ],
-
-    "hostel": [
-        r"hostel",
-        r"hostels",
-        r"accommodation",
-        r"தங்கும் விடுதி",
-        r"விடுதி",
-    ],
-
-    "placement": [
-        r"placement",
-        r"placements",
-        r"job",
-        r"jobs",
-        r"career",
-        r"campus interview",
-        r"வேலைவாய்ப்பு",
-    ],
-
-    "course": [
-        r"course",
-        r"courses",
-        r"program",
-        r"programme",
-        r"degree",
-        r"degrees",
-        r"பாடநெறி",
-        r"படிப்பு",
-    ],
-
-    "address": [
-        r"address",
-        r"location",
-        r"where",
-        r"முகவரி",
-        r"எங்கே",
-    ],
-
-    "contact": [
-        r"contact",
-        r"phone",
-        r"mobile",
-        r"number",
-        r"email",
-        r"mail",
-        r"தொடர்பு",
-    ],
-
-    "facilities": [
-        r"facility",
-        r"facilities",
-        r"library",
-        r"wifi",
-        r"wi-fi",
-        r"canteen",
-        r"cafeteria",
-        r"sports",
-        r"transport",
-        r"bus",
-        r"atm",
-        r"lab",
-        r"laboratory",
-        r"வசதி",
-        r"நூலகம்",
-        r"விளையாட்டு",
-    ],
-
-    "rules": [
-        r"rule",
-        r"rules",
-        r"dress code",
-        r"id card",
-        r"anti ragging",
-        r"ragging",
-        r"discipline",
-    ],
-
-    "management": [
-        r"chairman",
-        r"principal",
-        r"director",
-        r"management",
-        r"vice chairman",
-    ],
-}
-
-
-def detect_intents(text):
-
-    normalized = normalize(text)
+    text = normalize(text)
 
     detected = []
 
-    for intent, patterns in INTENT_PATTERNS.items():
+    for intent, words in INTENTS.items():
 
-        for pattern in patterns:
+        for word in words:
 
-            if re.search(pattern, normalized):
+            if word.lower() in text:
 
                 detected.append(intent)
-
                 break
 
     return detected
 
 
-# ============================================================
-# 3. EXCEL INSTITUTION DETECTION
-# ============================================================
-
-INSTITUTIONS = {
-
-    "commerce_science": [
-        "excel college for commerce and science",
-        "commerce and science",
-        "commerce science",
-        "eccs",
-        "arts and science",
-    ],
-
-    "engineering": [
-        "excel engineering college",
-        "engineering college",
-        "engineering",
-    ],
-
-    "architecture": [
-        "excel college of architecture",
-        "architecture",
-        "planning",
-    ],
-
-    "polytechnic": [
-        "excel polytechnic college",
-        "polytechnic",
-    ],
-
-    "education": [
-        "excel college of education",
-        "education college",
-        "b.ed",
-    ],
-
-    "business": [
-        "excel business school",
-        "business school",
-    ],
-
-    "nursing": [
-        "excel nursing college",
-        "nursing college",
-        "nursing",
-    ],
-
-    "pharmacy": [
-        "excel college of pharmacy",
-        "pharmacy college",
-        "pharmacy",
-    ],
-
-    "naturopathy": [
-        "excel medical college for naturopathy",
-        "naturopathy",
-        "yoga",
-    ],
-
-    "siddha": [
-        "excel siddha medical college",
-        "siddha",
-    ],
-
-    "homoeopathy": [
-        "excel homoeopathy medical college",
-        "homoeopathy",
-        "homeopathy",
-    ],
-
-    "physiotherapy": [
-        "excel college of physiotherapy",
-        "physiotherapy",
-        "physio",
-    ],
-
-    "health_sciences": [
-        "excel institute of health sciences",
-        "health sciences",
-    ],
-
-    "school": [
-        "excel public school",
-        "public school",
-        "cbse school",
-    ],
-}
-
+# =========================================================
+# INSTITUTION DETECTION
+# =========================================================
 
 def detect_institution(text):
 
-    normalized = normalize(text)
+    text = normalize(text)
 
     best_match = None
     best_length = 0
 
-    for institution, aliases in INSTITUTIONS.items():
+    for institution in INSTITUTIONS:
 
-        for alias in aliases:
+        for alias in institution["aliases"]:
 
-            if alias in normalized:
+            alias = normalize(alias)
+
+            if alias in text:
 
                 if len(alias) > best_length:
 
@@ -421,554 +310,552 @@ def detect_institution(text):
     return best_match
 
 
-# ============================================================
-# 4. COURSE DETECTION
-# ============================================================
-
-COURSES = {
-
-    "bca": [
-        "bca",
-        "bachelor of computer applications",
-    ],
-
-    "bcom": [
-        "bcom",
-        "b.com",
-    ],
-
-    "bba": [
-        "bba",
-        "business administration",
-    ],
-
-    "computer science": [
-        "computer science",
-        "bsc computer science",
-        "b.sc computer science",
-    ],
-
-    "artificial intelligence": [
-        "artificial intelligence",
-        "artificial intelligence and data science",
-        "ai",
-        "ai&ds",
-        "ai ds",
-        "data science",
-    ],
-
-    "machine learning": [
-        "artificial intelligence and machine learning",
-        "ai&ml",
-        "ai ml",
-        "aiml",
-        "machine learning",
-    ],
-
-    "cyber security": [
-        "cyber security",
-        "cybersecurity",
-    ],
-
-    "information technology": [
-        "information technology",
-        "information tech",
-        "it course",
-    ],
-
-    "microbiology": [
-        "microbiology",
-    ],
-
-    "biochemistry": [
-        "biochemistry",
-    ],
-
-    "mathematics": [
-        "mathematics",
-        "maths",
-    ],
-
-    "physics": [
-        "physics",
-    ],
-
-    "english": [
-        "english",
-        "english literature",
-    ],
-
-    "visual communication": [
-        "visual communication",
-        "viscom",
-    ],
-
-    "fashion": [
-        "fashion",
-        "costume design",
-        "textile",
-    ],
-
-    "mcom": [
-        "mcom",
-        "m.com",
-    ],
-
-    "msc computer science": [
-        "msc computer science",
-        "m.sc computer science",
-    ],
-}
-
+# =========================================================
+# COURSE DETECTION
+# =========================================================
 
 def detect_course(text):
 
-    normalized = normalize(text)
+    text = normalize(text)
 
     best_course = None
     best_length = 0
 
-    for course, aliases in COURSES.items():
+    for short_name, details in COURSES.items():
 
-        for alias in aliases:
+        all_aliases = [
+            short_name
+        ] + details["aliases"]
 
-            if alias in normalized:
+        for alias in all_aliases:
+
+            alias = normalize(alias)
+
+            if alias in text:
 
                 if len(alias) > best_length:
 
-                    best_course = course
+                    best_course = (
+                        short_name,
+                        details
+                    )
+
                     best_length = len(alias)
 
     return best_course
 
 
-# ============================================================
-# 5. DATABASE
-# ============================================================
+# =========================================================
+# DATABASE
+# =========================================================
 
 def load_faqs():
 
     connection = sqlite3.connect(DATABASE)
 
-    cursor = connection.cursor()
-
-    cursor.execute(
+    rows = connection.execute(
         "SELECT question, answer FROM faq"
-    )
-
-    rows = cursor.fetchall()
+    ).fetchall()
 
     connection.close()
 
     return rows
 
 
-# ============================================================
-# 6. KEYWORD SIMILARITY
-# ============================================================
+# =========================================================
+# DISPLAY CLEANER
+# =========================================================
 
-def keyword_score(query, document):
+def clean_response(text):
 
-    query_words = set(get_tokens(query))
-
-    document_words = set(get_tokens(document))
-
-    if not query_words or not document_words:
-
-        return 0.0
-
-    common = query_words.intersection(document_words)
-
-    total = query_words.union(document_words)
-
-    return len(common) / len(total)
-
-
-# ============================================================
-# 7. FUZZY MATCHING
-# ============================================================
-
-def fuzzy_score(query, document):
-
-    query = normalize(query)
-
-    document = normalize(document)
-
-    return SequenceMatcher(
-        None,
-        query,
-        document
-    ).ratio()
-
-
-# ============================================================
-# 8. INTENT WORD MATCH
-# ============================================================
-
-INTENT_WORDS = {
-
-    "eligibility": [
-        "eligibility",
-        "qualification",
-        "eligible",
-    ],
-
-    "admission": [
-        "admission",
-        "apply",
-        "joining",
-    ],
-
-    "fees": [
-        "fee",
-        "fees",
-        "cost",
-    ],
-
-    "scholarship": [
-        "scholarship",
-    ],
-
-    "hostel": [
-        "hostel",
-    ],
-
-    "placement": [
-        "placement",
-        "career",
-    ],
-
-    "course": [
-        "course",
-        "program",
-        "programme",
-    ],
-
-    "address": [
-        "address",
-        "location",
-        "where",
-    ],
-
-    "contact": [
-        "contact",
-        "phone",
-        "email",
-    ],
-
-    "facilities": [
-        "facility",
-        "facilities",
-        "library",
-        "wifi",
-        "sports",
-    ],
-
-    "rules": [
-        "rule",
-        "dress",
-        "ragging",
-    ],
-
-    "management": [
-        "principal",
-        "chairman",
-        "director",
-    ],
-}
-
-
-# ============================================================
-# 9. AI/NLP RANKING
-# ============================================================
-
-def rank_answers(user_question, rows):
-
-    if not rows:
-
-        return []
-
-    questions = [
-        row[0]
-        for row in rows
-    ]
-
-    normalized_questions = [
-        normalize(q)
-        for q in questions
-    ]
-
-    normalized_user_question = normalize(
-        user_question
+    # Never show ECCS in chatbot output
+    text = re.sub(
+        r"\bECCS\b",
+        "Excel College for Commerce and Science",
+        text,
+        flags=re.IGNORECASE
     )
 
-    vectorizer = TfidfVectorizer(
-        ngram_range=(1, 2),
-        sublinear_tf=True
+    return text
+
+
+# =========================================================
+# DIRECT INSTITUTION ANSWERS
+# =========================================================
+
+def institution_answer(institution, intent):
+
+    name = institution["name"]
+    category = institution["category"]
+
+    if intent == "course":
+
+        return (
+            f"🎓 {name}\n\n"
+            f"Category: {category}\n\n"
+            f"{name} is part of Excel Group Institutions. "
+            f"The courses available depend on the programmes offered "
+            f"by this institution."
+        )
+
+    if intent == "eligibility":
+
+        return (
+            f"✅ Eligibility – {name}\n\n"
+            f"Eligibility depends on the specific course selected "
+            f"under {name}. Different programmes can have different "
+            f"academic requirements."
+        )
+
+    if intent == "admission":
+
+        return (
+            f"📝 Admission – {name}\n\n"
+            f"Admission requirements depend on the selected programme "
+            f"and applicable admission rules."
+        )
+
+    if intent == "hostel":
+
+        return (
+            f"🏠 Hostel – {name}\n\n"
+            f"Hostel facilities are available within the Excel Group "
+            f"campus facilities. Availability can depend on the "
+            f"institution and programme."
+        )
+
+    if intent == "placement":
+
+        return (
+            f"💼 Placement – {name}\n\n"
+            f"Placement and training activities are available across "
+            f"Excel Group institutions. Specific placement information "
+            f"can vary according to the institution and programme."
+        )
+
+    if intent == "facilities":
+
+        return (
+            f"🏫 Facilities – {name}\n\n"
+            f"Applicable Excel Group campus facilities include "
+            f"academic infrastructure, laboratories, library, "
+            f"sports, hostel and transport facilities."
+        )
+
+    if intent == "address":
+
+        return (
+            f"📍 Location – {name}\n\n"
+            f"NH-544, Salem Main Road, Sankari West, "
+            f"Pallakkapalayam, Komarapalayam, "
+            f"Namakkal District, Tamil Nadu - 637303."
+        )
+
+    if intent == "contact":
+
+        return (
+            f"📞 Contact – {name}\n\n"
+            f"General Excel Group contact:\n"
+            f"+91 99655 23999\n"
+            f"info@excelcolleges.com"
+        )
+
+    return (
+        f"🏫 {name}\n\n"
+        f"Category: {category}\n\n"
+        f"This institution is part of Excel Group Institutions."
     )
 
-    try:
 
-        matrix = vectorizer.fit_transform(
-            normalized_questions + [
-                normalized_user_question
-            ]
+# =========================================================
+# COURSE ANSWERS
+# =========================================================
+
+def course_answer(course_data, intent):
+
+    short_name, details = course_data
+
+    course_name = details["name"]
+    institution = details["institution"]
+
+    if intent == "eligibility":
+
+        return (
+            f"📚 {course_name}\n\n"
+            f"Institution: {institution}\n\n"
+            f"Eligibility depends on the applicable admission "
+            f"requirements for this programme."
         )
 
-        question_matrix = matrix[:-1]
+    if intent == "admission":
 
-        user_vector = matrix[-1]
+        return (
+            f"📝 {course_name}\n\n"
+            f"Institution: {institution}\n\n"
+            f"Admission depends on the applicable academic and "
+            f"admission requirements."
+        )
 
-        cosine_scores = cosine_similarity(
-            user_vector,
-            question_matrix
-        ).flatten()
-
-    except Exception:
-
-        cosine_scores = [
-            0.0
-            for _ in questions
-        ]
-
-    user_intents = set(
-        detect_intents(user_question)
+    return (
+        f"🎓 {course_name}\n\n"
+        f"Institution: {institution}\n\n"
+        f"This is a programme associated with the Excel Group "
+        f"Institutions."
     )
 
-    user_institution = detect_institution(
-        user_question
-    )
 
-    user_course = detect_course(
-        user_question
-    )
+# =========================================================
+# FULL INSTITUTION LIST
+# =========================================================
 
-    ranked = []
+def full_institution_list():
 
-    for index, row in enumerate(rows):
+    answer = "🏫 Excel Group Institutions\n\n"
 
-        question = row[0]
-        answer = row[1]
+    categories = {}
 
-        question_lower = question.lower()
+    for institution in INSTITUTIONS:
 
-        # Main ML similarity
-        tfidf_score = float(
-            cosine_scores[index]
+        category = institution["category"]
+
+        if category not in categories:
+            categories[category] = []
+
+        categories[category].append(
+            institution["name"]
         )
 
-        # Keyword similarity
-        key_score = keyword_score(
-            user_question,
-            question
+    for category, names in categories.items():
+
+        answer += f"📌 {category}\n"
+
+        for name in names:
+
+            answer += f"• {name}\n"
+
+        answer += "\n"
+
+    return answer.strip()
+
+
+# =========================================================
+# GENERAL ANSWERS
+# =========================================================
+
+def general_answer(intent):
+
+    if intent == "hostel":
+
+        return (
+            "🏠 Hostel\n\n"
+            "Excel Group Institutions provides hostel facilities "
+            "for students. Availability and specific hostel details "
+            "can vary according to the institution and programme."
         )
 
-        # Fuzzy similarity
-        fuzzy = fuzzy_score(
-            user_question,
-            question
+    if intent == "placement":
+
+        return (
+            "💼 Placement\n\n"
+            "Excel Group Institutions provides training and placement "
+            "activities for students. Placement details vary by "
+            "institution and programme."
         )
 
-        bonus = 0.0
+    if intent == "scholarship":
 
-        # Course bonus
-        if user_course:
-
-            aliases = COURSES.get(
-                user_course,
-                []
-            )
-
-            if any(
-                alias in question_lower
-                for alias in aliases
-            ):
-
-                bonus += 0.15
-
-        # Institution bonus
-        if user_institution:
-
-            aliases = INSTITUTIONS.get(
-                user_institution,
-                []
-            )
-
-            if any(
-                alias in question_lower
-                for alias in aliases
-            ):
-
-                bonus += 0.10
-
-        # Intent bonus
-        for intent in user_intents:
-
-            words = INTENT_WORDS.get(
-                intent,
-                []
-            )
-
-            if any(
-                word in question_lower
-                for word in words
-            ):
-
-                bonus += 0.08
-
-                break
-
-        # Combined AI/NLP score
-        final_score = (
-            (tfidf_score * 0.55)
-            + (key_score * 0.20)
-            + (fuzzy * 0.15)
-            + bonus
+        return (
+            "🎓 Scholarship\n\n"
+            "Excel Group Institutions provides scholarship "
+            "opportunities subject to applicable eligibility "
+            "criteria and programme requirements."
         )
 
-        ranked.append(
-            (
-                final_score,
-                question,
-                answer,
-            )
+    if intent == "facilities":
+
+        return (
+            "🏫 Facilities\n\n"
+            "Excel Group Institutions provides facilities such as "
+            "academic infrastructure, laboratories, library, "
+            "sports, hostel and transport."
         )
 
-    ranked.sort(
-        key=lambda item: item[0],
-        reverse=True
-    )
+    if intent == "address":
 
-    return ranked
+        return (
+            "📍 Excel Group Address\n\n"
+            "NH-544, Salem Main Road, Sankari West, "
+            "Pallakkapalayam, Komarapalayam, "
+            "Namakkal District, Tamil Nadu - 637303."
+        )
+
+    if intent == "contact":
+
+        return (
+            "📞 Excel Group Contact\n\n"
+            "Phone: +91 99655 23999\n"
+            "Email: info@excelcolleges.com"
+        )
+
+    return None
 
 
-# ============================================================
-# 10. MAIN CHATBOT
-# ============================================================
+# =========================================================
+# MAIN AI RESPONSE
+# =========================================================
 
 def get_response(user_message):
 
-    if not user_message or not user_message.strip():
+    original_text = user_message
+
+    text = normalize(user_message)
+
+    if not text:
 
         return "Please enter a question."
 
-    normalized = normalize(
-        user_message
-    )
 
-    # Greeting
-    if (
-        len(get_tokens(normalized)) <= 4
-        and any(
-            word in normalized
-            for word in [
-                "hi",
-                "hello",
-                "hey",
-                "vanakkam",
-            ]
-        )
-    ):
+    # -----------------------------------------------------
+    # GREETING
+    # -----------------------------------------------------
+
+    greetings = [
+        "hi",
+        "hello",
+        "hey",
+        "vanakkam",
+        "good morning",
+        "good afternoon",
+        "good evening"
+    ]
+
+    if text in greetings:
 
         return (
-            "Hello! 👋 I'm your Excel Institute AI Assistant.\n\n"
-            "You can ask me about courses, eligibility, "
-            "admission, fees, scholarships, hostel, "
-            "facilities, placement, address and more."
+            "👋 Hello! Welcome to Excel Institute AI Assistant.\n\n"
+            "I can help you with:\n"
+            "• Excel Group Institutions\n"
+            "• Courses\n"
+            "• Eligibility\n"
+            "• Admission\n"
+            "• Fees\n"
+            "• Scholarship\n"
+            "• Hostel\n"
+            "• Placement\n"
+            "• Facilities\n"
+            "• Address / Contact"
         )
 
-    # Thanks
+
+    # -----------------------------------------------------
+    # DETECT
+    # -----------------------------------------------------
+
+    intents = detect_intent(text)
+
+    institution = detect_institution(text)
+
+    course = detect_course(text)
+
+
+    # -----------------------------------------------------
+    # FULL INSTITUTION LIST
+    # -----------------------------------------------------
+
+    list_words = [
+        "what institutions",
+        "what colleges",
+        "which colleges",
+        "all colleges",
+        "all institutions",
+        "excel colleges",
+        "excel institutions",
+        "enna college",
+        "enna colleges",
+        "enna institution",
+        "college list",
+        "institution list"
+    ]
+
     if any(
-        word in normalized
-        for word in [
-            "thank you",
-            "thanks",
-            "nandri",
-        ]
+        word in text
+        for word in list_words
     ):
 
-        return (
-            "You're welcome! 😊 "
-            "Ask me anything about Excel Institute."
+        return full_institution_list()
+
+
+    # -----------------------------------------------------
+    # COURSE DETECTED
+    # -----------------------------------------------------
+
+    if course:
+
+        if "eligibility" in intents:
+
+            return clean_response(
+                course_answer(
+                    course,
+                    "eligibility"
+                )
+            )
+
+        if "admission" in intents:
+
+            return clean_response(
+                course_answer(
+                    course,
+                    "admission"
+                )
+            )
+
+        return clean_response(
+            course_answer(
+                course,
+                "course"
+            )
         )
 
-    # Bye
-    if normalized in [
-        "bye",
-        "goodbye",
-        "see you",
+
+    # -----------------------------------------------------
+    # INSTITUTION DETECTED
+    # -----------------------------------------------------
+
+    if institution:
+
+        # Find strongest intent
+        preferred_intents = [
+            "eligibility",
+            "admission",
+            "course",
+            "fees",
+            "scholarship",
+            "hostel",
+            "placement",
+            "facilities",
+            "address",
+            "contact"
+        ]
+
+        selected_intent = None
+
+        for intent in preferred_intents:
+
+            if intent in intents:
+
+                selected_intent = intent
+                break
+
+        if selected_intent:
+
+            return clean_response(
+                institution_answer(
+                    institution,
+                    selected_intent
+                )
+            )
+
+        return clean_response(
+            institution_answer(
+                institution,
+                "institution"
+            )
+        )
+
+
+    # -----------------------------------------------------
+    # GENERAL INTENT
+    # -----------------------------------------------------
+
+    for intent in [
+        "hostel",
+        "placement",
+        "scholarship",
+        "facilities",
+        "address",
+        "contact"
     ]:
 
-        return "Thank you! 👋 Have a great day."
+        if intent in intents:
+
+            answer = general_answer(intent)
+
+            if answer:
+
+                return clean_response(answer)
+
+
+    # -----------------------------------------------------
+    # TF-IDF FALLBACK
+    # -----------------------------------------------------
 
     rows = load_faqs()
 
-    if not rows:
+    if rows:
 
-        return (
-            "Sorry, the college information database "
-            "is currently empty."
+        questions = [
+            normalize(question)
+            for question, answer in rows
+        ]
+
+        vectorizer = TfidfVectorizer(
+            ngram_range=(1, 2),
+            sublinear_tf=True
         )
 
-    ranked = rank_answers(
-        user_message,
-        rows
-    )
-
-    if not ranked:
-
-        return (
-            "Sorry, I couldn't find a matching answer."
+        matrix = vectorizer.fit_transform(
+            questions + [text]
         )
 
-    best_score = ranked[0][0]
-    best_question = ranked[0][1]
-    best_answer = ranked[0][2]
+        similarities = cosine_similarity(
+            matrix[-1],
+            matrix[:-1]
+        ).flatten()
 
-    # Strong match
-    if best_score >= 0.55:
+        best_index = similarities.argmax()
 
-        return best_answer
+        best_score = float(
+            similarities[best_index]
+        )
 
-    # Topic-aware medium match
-    has_topic = (
-        detect_course(user_message)
-        or detect_institution(user_message)
-        or detect_intents(user_message)
-    )
+        if best_score >= 0.18:
 
-    if has_topic and best_score >= 0.40:
+            return clean_response(
+                rows[best_index][1]
+            )
 
-        return best_answer
 
-    # Low confidence — don't hallucinate
+    # -----------------------------------------------------
+    # UNKNOWN QUESTION
+    # -----------------------------------------------------
+
     return (
-        "I understand your question, but I couldn't "
-        "find a reliable matching answer in my Excel "
-        "Institute database.\n\n"
-        "Try asking with a topic such as:\n"
+        "🤖 I couldn't find a reliable answer for that question "
+        "in my Excel Group database.\n\n"
+        "Try asking about:\n"
         "• Courses\n"
-        "• BCA eligibility\n"
+        "• Eligibility\n"
         "• Admission\n"
         "• Fees\n"
         "• Scholarship\n"
         "• Hostel\n"
         "• Placement\n"
         "• Facilities\n"
-        "• Address / Contact"
+        "• Any Excel institution"
     )
 
 
-# ============================================================
-# 11. TEST MODE
-# ============================================================
+# =========================================================
+# TEST FROM CMD
+# =========================================================
 
 if __name__ == "__main__":
 
-    print("=" * 60)
-    print("Excel Institute AI/NLP Chatbot")
+    print()
+    print("======================================")
+    print("EXCEL GROUP AI CHATBOT")
     print("Type 'exit' to stop")
-    print("=" * 60)
+    print("======================================")
 
     while True:
 
@@ -976,14 +863,10 @@ if __name__ == "__main__":
 
         if question.lower().strip() in [
             "exit",
-            "quit",
+            "quit"
         ]:
-
-            print("Bot: Goodbye! 👋")
 
             break
 
-        print(
-            "Bot:",
-            get_response(question)
-        )
+        print("\nBot:")
+        print(get_response(question))
