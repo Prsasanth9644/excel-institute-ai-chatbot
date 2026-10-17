@@ -267,7 +267,8 @@ def get_tokens(text):
 # =========================================================
 
 def detect_intent(text):
-
+institution = detect_institution(text)
+course = detect_course(text)
     text = normalize(text)
 
     detected = []
