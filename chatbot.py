@@ -5,7 +5,7 @@ from difflib import SequenceMatcher
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from database import INSTITUTIONS, COURSES
+from database import COURSE_FAQS, GENERAL_FAQS
 
 
 DATABASE = "college.db"
