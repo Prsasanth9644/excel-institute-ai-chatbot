@@ -1,378 +1,232 @@
 
 import sqlite3
+from pathlib import Path
 
-DATABASE = "college.db"
+BASE_DIR = Path(__file__).resolve().parent
+DATABASE = BASE_DIR / "college.db"
 
-# Additional course-related questions and answers
+# Each entry: (question, answer)
 COURSE_FAQS = [
-    # GENERAL COURSE QUESTIONS
-    (
-        "What courses are available?",
-        "Excel Institutions Group covers different educational fields, including Arts and Science, Engineering, Architecture, Polytechnic, Education, Business, Pharmacy, Nursing and Health Sciences. Exact courses vary by institution and academic year. Ask about a specific institution or course."
-    ),
-    (
-        "Enna courses irukku?",
-        "Excel Institutions Group-la Arts and Science, Engineering, Architecture, Polytechnic, Education, Business, Pharmacy, Nursing, Health Sciences pondra fields irukku. Specific course availability-ai official college course list-la confirm pannunga."
-    ),
-    (
-        "என்ன courses இருக்கு?",
-        "Excel Institutions Group-la pala educational fields irukku: Arts and Science, Engineering, Architecture, Polytechnic, Education, Pharmacy, Nursing and Health Sciences. Exact course details-ku specific institution-ai sollunga."
-    ),
-    (
-        "What UG courses are available?",
-        "UG means Undergraduate programmes. Available UG courses depend on the institution and current academic year. Tell me which institution or subject you are interested in."
-    ),
-    (
-        "What PG courses are available?",
-        "PG means Postgraduate programmes. The available programmes and eligibility vary by institution. Check the current official course list for your preferred subject."
-    ),
-    (
-        "What courses can I study after 12th?",
-        "After 12th, you can explore degree, professional and diploma programmes depending on your subjects and eligibility. Excel Institutions Group has institutions across several fields. Tell me your 12th group to explore suitable options."
-    ),
-    (
-        "12th mudichitu enna course padikkalam?",
-        "12th mudichavanga avanga group, marks, interest and eligibility-ku etha maadhiri courses choose pannalaam. Ungaloda 12th group enna: Maths, Biology, Computer Science, Commerce illa Arts?"
-    ),
-    (
-        "Which course is best?",
-        "The best course depends on your interests, school subjects, strengths and career goal. Tell me your 12th group and the field you like, and I can help you compare course options."
-    ),
-    (
-        "How do I choose a course?",
-        "Choose a course based on your interests, eligibility, career goals, course fees and preferred work field. Tell me your educational background and interests for guidance."
-    ),
+    # General course questions
+    ("What courses are available?", "Excel Institutions Group-la pala fields irukkalaam. Current course list institution and academic year-ai poruthadhu. Endha institution or subject venum nu sollunga."),
+    ("List all available courses", "Courses institution-wise vary aagum. Arts and Science, Engineering, Architecture, Polytechnic, Business, Education and healthcare-related fields-ku official current course list check pannunga."),
+    ("Which UG courses are available?", "UG courses are undergraduate programmes. Available programmes and eligibility-ai relevant Excel institution-oda current admission details-la verify pannunga."),
+    ("Which PG courses are available?", "PG courses are postgraduate programmes. Current availability and eligibility institution and academic year-ai poruthadhu."),
+    ("What courses can I study after 12th?", "Ungaloda 12th group, subjects and interest-ai sollunga. Adhuku suitable-aana course options-ai compare panna help pannuren."),
+    ("What courses are available after 10th?", "10th-ku apram eligible diploma and other programmes explore pannalaam. Exact options institution admission rules-ai poruthadhu."),
+    ("Which course is best for me?", "Ungaloda qualification, favourite subjects and career goal sollunga. Suitable course options-ai identify panna help pannuren."),
+    ("Which course has more job opportunities?", "Job opportunities skills, experience, industry and location-ai poruthadhu. Ungalukku pidicha field-ai choose panni practical skills develop pannunga."),
+    ("What is UG?", "UG means Undergraduate. School education-kku piragu eligible students join pannura degree programmes."),
+    ("What is PG?", "PG means Postgraduate. Usually bachelor's degree mudichadhukku piragu eligible students pursue pannura programmes."),
+    ("How can I find the syllabus?", "Relevant institution-oda official website or department office-la current syllabus details check pannunga."),
+    ("How do I find course fees?", "Fees course and institution-ai poruthadhu. Current fee structure-ku official admissions office-ai contact pannunga."),
+    ("How do I apply for admission?", "Official admission page-la application steps, eligibility, documents and deadlines check pannunga."),
+    ("Does completing a course guarantee a job?", "Course complete pannina mattum job guarantee illa. Skills, projects, experience and employer requirements mukkiyam."),
 
     # BCA
-    (
-        "What is BCA?",
-        "BCA stands for Bachelor of Computer Applications. It focuses on computing, programming and software-related subjects. Confirm the current course availability and eligibility with the relevant institution."
-    ),
-    (
-        "BCA ku enna qualification venum?",
-        "BCA eligibility college rules and current admission requirements-ai poruthadhu. Exact qualification, subjects and minimum marks-ku official institution eligibility details check pannunga."
-    ),
-    (
-        "What is the eligibility for BCA?",
-        "BCA eligibility depends on the institution's current admission rules. Check the official eligibility page for the required school qualification, subjects and minimum marks."
-    ),
-    (
-        "How many years is BCA?",
-        "BCA duration depends on the programme structure and current regulations. Check the relevant institution's official course details for the exact duration."
-    ),
-    (
-        "What subjects are taught in BCA?",
-        "BCA programmes commonly cover programming, computer fundamentals, databases, software development and web technologies. Exact subjects depend on the syllabus followed by the institution."
-    ),
-    (
-        "What jobs can I get after BCA?",
-        "Depending on your skills and experience, BCA graduates may explore software development, web development, software testing, IT support, database-related roles or higher studies."
-    ),
-    (
-        "BCA mudichitu enna job kidaikkum?",
-        "BCA mudichathukku appuram skills and experience-ku etha maadhiri web developer, software developer, tester, IT support pondra career options explore pannalaam. Placement guarantee-nu solla mudiyadhu."
-    ),
-    (
-        "Can I study BCA after Commerce?",
-        "Eligibility for BCA after Commerce depends on the institution's current admission rules. Check the official requirements for accepted school streams and subjects."
-    ),
-    (
-        "Is maths compulsory for BCA?",
-        "Mathematics requirements can vary by institution and admission regulations. Check the official BCA eligibility rules before applying."
-    ),
+    ("What is BCA?", "BCA stands for Bachelor of Computer Applications. Idhu computer applications and computing-related undergraduate programme."),
+    ("What is the full form of BCA?", "BCA stands for Bachelor of Computer Applications."),
+    ("What do we study in BCA?", "BCA-la programming, computer fundamentals, databases, software development and web technologies maadhiri topics irukkalaam. Exact syllabus institution-ai poruthadhu."),
+    ("What is BCA eligibility?", "BCA eligibility and required school subjects institution-oda current admission rules-ai poruthadhu. Official criteria verify pannunga."),
+    ("Can Commerce students study BCA?", "Commerce students apply panna mudiyuma enbadhu current institution eligibility rules-ai poruthadhu. Required subjects and marks verify pannunga."),
+    ("Can Arts students study BCA?", "Arts students eligibility course admission rules and required school subjects-ai poruthadhu. Official criteria check pannunga."),
+    ("Does BCA require Mathematics?", "Mathematics requirement institution and current admission regulations-ai poruthadhu. Official eligibility details check pannunga."),
+    ("Is coding taught in BCA?", "Aama, BCA programmes-la generally programming-related subjects irukkum. Exact languages and syllabus college curriculum-ai poruthadhu."),
+    ("Is BCA difficult for beginners?", "Beginner-a irundhaalum step-by-step practice moolama programming kathukkalaam. Regular practice mukkiyam."),
+    ("What programming languages are taught in BCA?", "Programming languages curriculum-ai poruthadhu. Current syllabus-la exact language list check pannunga."),
+    ("What jobs can I get after BCA?", "Possible career paths: web developer, software developer, software tester and IT support. Skills and employer requirements mukkiyam."),
+    ("Can I do MCA after BCA?", "MCA eligibility university rules, degree and required subjects-ai poruthadhu. Current admission criteria verify pannunga."),
+    ("Can I get an IT job after BCA?", "IT job opportunities irukkalaam. Programming skills, projects, communication and interview preparation help pannum."),
+    ("BCA-ku enna qualification venum?", "BCA eligibility college rules and required school subjects-ai poruthadhu. Official admission criteria check pannunga."),
+    ("BCA padikka coding theriyanuma?", "Admission-ku prior coding knowledge thevaiyaa enbadhu institution rules-ai poruthadhu. Course-la programming kathukka vendiyirukkum."),
+    ("BCA mudichitu enna job pogalam?", "Web development, software testing, IT support and related roles explore pannalaam. Skills and job requirements mukkiyam."),
+    ("BCA mudichitu MCA padikkalama?", "MCA-ku apply panna mudiyuma enbadhu university eligibility rules-ai poruthadhu. Current criteria check pannunga."),
 
-    # BCOM AND COMMERCE
-    (
-        "What is BCom?",
-        "B.Com stands for Bachelor of Commerce. It focuses on commerce, accounting, finance and business-related subjects. Confirm the programme and specialisation available at your chosen institution."
-    ),
-    (
-        "What is the eligibility for BCom?",
-        "B.Com eligibility depends on the current admission requirements of the institution. Check the official course eligibility details for the accepted school qualification and minimum marks."
-    ),
-    (
-        "What jobs can I get after BCom?",
-        "B.Com graduates may explore careers in accounting, finance, banking, taxation, business operations and further professional studies, depending on their skills and qualifications."
-    ),
-    (
-        "BCom mudichitu enna pannalam?",
-        "B.Com mudichathukku appuram accounting, finance, banking, taxation, business-related jobs or higher studies-ai explore pannalaam. Career options unga skills and qualification-ai poruthadhu."
-    ),
-    (
-        "What is the difference between BCA and BCom?",
-        "BCA mainly focuses on computing and computer applications, while B.Com focuses on commerce, accounting and business subjects. Choose based on your interests and eligibility."
-    ),
-    (
-        "Can Commerce students study computer courses?",
-        "Some computer-related programmes may accept Commerce students, while others have specific subject requirements. Check the eligibility rules for the exact course."
-    ),
+    # B.Com
+    ("What is BCom?", "B.Com stands for Bachelor of Commerce. Idhu commerce and business-related undergraduate degree."),
+    ("What is the full form of B.Com?", "B.Com stands for Bachelor of Commerce."),
+    ("What subjects are taught in BCom?", "B.Com-la accounting, commerce, finance, business and related subjects irukkalaam. Exact syllabus vary aagum."),
+    ("What is BCom eligibility?", "B.Com eligibility and minimum marks institution-oda current admission rules-ai poruthadhu."),
+    ("What jobs can I get after BCom?", "Accounting, finance, banking, taxation and business operations-related roles explore pannalaam."),
+    ("Can I do MCom after BCom?", "M.Com admission eligibility university and programme rules-ai poruthadhu."),
+    ("Is BCom useful for banking jobs?", "B.Com commerce and finance foundation provide pannalaam. Banking recruitment-ku separate eligibility and selection requirements irukkum."),
+    ("What is the difference between BCom and BBA?", "B.Com mainly commerce and accounting-focused; BBA business administration and management-focused."),
+    ("BCom-ku enna qualification venum?", "B.Com eligibility and required marks institution admission rules-ai poruthadhu."),
+    ("BCom mudichitu enna job kidaikkum?", "Accounting, finance, banking and business-related roles explore pannalaam. Skills and qualifications mukkiyam."),
 
-    # BBA AND BUSINESS
-    (
-        "What is BBA?",
-        "BBA stands for Bachelor of Business Administration. It introduces students to management, marketing, business operations and related topics. Confirm current availability with the institution."
-    ),
-    (
-        "What is the eligibility for BBA?",
-        "BBA eligibility depends on the institution's current admission rules. Check the official programme page for required qualifications and minimum marks."
-    ),
-    (
-        "What jobs can I get after BBA?",
-        "Depending on skills and experience, BBA graduates may explore entry-level roles in marketing, sales, business operations, customer relations or pursue further management studies."
-    ),
-    (
-        "What is a business management course?",
-        "Business management courses cover areas such as management, marketing, finance, operations and organisational behaviour. Programme content depends on the qualification and institution."
-    ),
+    # BBA and management
+    ("What is BBA?", "BBA stands for Bachelor of Business Administration."),
+    ("What is the full form of BBA?", "BBA stands for Bachelor of Business Administration."),
+    ("What subjects are taught in BBA?", "BBA-la management, marketing, business operations, finance and organisational topics irukkalaam."),
+    ("Can I do MBA after BBA?", "MBA eligibility institution admission rules and any applicable entrance requirements-ai poruthadhu."),
+    ("What jobs can I get after BBA?", "Sales, marketing, customer relations and business operations-related roles explore pannalaam."),
+    ("What is the difference between BBA and MBA?", "BBA is an undergraduate business degree; MBA is a postgraduate management degree."),
 
-    # BSC AND SCIENCE
-    (
-        "What is BSc Computer Science?",
-        "B.Sc Computer Science is a science degree focused on computing, programming and computer science concepts. Check the relevant institution's official course list and eligibility requirements."
-    ),
-    (
-        "What is the eligibility for BSc Computer Science?",
-        "Eligibility depends on the institution and its current admission rules, including accepted school subjects and minimum marks. Check the official course eligibility details."
-    ),
-    (
-        "What jobs can I get after BSc Computer Science?",
-        "Graduates may explore entry-level IT, software support, testing, programming or further study opportunities depending on their skills and qualifications."
-    ),
-    (
-        "What is Microbiology?",
-        "Microbiology is the study of microorganisms such as bacteria, fungi and viruses. Check the relevant institution's current course list for availability and eligibility."
-    ),
-    (
-        "What is Biochemistry?",
-        "Biochemistry studies the chemical processes and molecules involved in living organisms. Confirm course availability and eligibility with the relevant institution."
-    ),
-    (
-        "What is Mathematics degree?",
-        "A Mathematics degree focuses on mathematical theories, calculations, statistics and analytical methods. The available programme and entry requirements depend on the institution."
-    ),
-    (
-        "What science courses are available?",
-        "Science programmes vary by institution and academic year. Tell me the subject you are interested in, such as Computer Science or another science field, and verify availability with the official institution."
-    ),
+    # B.Sc and science
+    ("What is BSc?", "B.Sc stands for Bachelor of Science."),
+    ("What is the full form of BSc?", "B.Sc stands for Bachelor of Science."),
+    ("What is BSc Computer Science?", "B.Sc Computer Science is a science degree focused on computing concepts and related subjects. Availability and syllabus-ai verify pannunga."),
+    ("What is BSc eligibility?", "B.Sc eligibility depends on the chosen subject, school subjects and institution admission rules."),
+    ("What jobs can I get after BSc?", "Career options chosen subject, skills and further qualifications-ai poruthadhu."),
+    ("What is BSc Mathematics?", "B.Sc Mathematics focuses on mathematical concepts, analytical methods and problem-solving."),
+    ("What is BSc Physics?", "B.Sc Physics studies matter, energy, motion and physical principles."),
+    ("What is Microbiology?", "Microbiology studies microorganisms such as bacteria and fungi. Course availability-ai institution-la verify pannunga."),
+    ("What is Biochemistry?", "Biochemistry studies chemical processes and molecules in living organisms."),
+    ("Can I do MSc after BSc?", "M.Sc admission depends on bachelor's degree subject and university eligibility rules."),
 
-    # ENGINEERING
-    (
-        "What engineering courses are available?",
-        "Engineering programmes and branches vary by institution and academic year. Check the official Excel Engineering College course list for currently offered branches."
-    ),
-    (
-        "Engineering la enna branches irukku?",
-        "Engineering branches institution and academic year-ku etha maadhiri maaralaam. Current branches-ai Excel Engineering College official course list-la check pannunga."
-    ),
-    (
-        "What is the eligibility for engineering?",
-        "Engineering eligibility depends on the programme, qualifying subjects, marks and applicable admission rules. Check the official eligibility page for the current requirements."
-    ),
-    (
-        "How many years is engineering?",
-        "Engineering degree duration depends on the programme and applicable regulations. Check the official course details for the exact duration."
-    ),
-    (
-        "What is Computer Science Engineering?",
-        "Computer Science Engineering focuses on computing systems, programming, algorithms, software and related technologies. Check the official institution course list to confirm availability."
-    ),
-    (
-        "What is Information Technology?",
-        "Information Technology focuses on computing systems, software, networks, data and technology services. Programme availability and syllabus depend on the institution."
-    ),
-    (
-        "What is Artificial Intelligence?",
-        "Artificial Intelligence, or AI, is a field of computing that develops systems capable of performing tasks such as recognising patterns, understanding language and making predictions."
-    ),
-    (
-        "What is Data Science?",
-        "Data Science combines data analysis, statistics and computing to find patterns and insights from data. Check the institution's current course list for programme availability."
-    ),
-    (
-        "What is Cyber Security?",
-        "Cyber Security focuses on protecting computers, networks, systems and data from digital threats. Course availability and eligibility must be confirmed with the relevant institution."
-    ),
-    (
-        "What is Machine Learning?",
-        "Machine Learning is a branch of AI in which computer systems learn patterns from data to make predictions or decisions."
-    ),
-    (
-        "What is the difference between AI and Data Science?",
-        "AI focuses on building systems that perform intelligent tasks. Data Science focuses on extracting insights from data using statistics, computing and analytical methods. The fields can overlap."
-    ),
-    (
-        "What jobs can I get after engineering?",
-        "Career opportunities depend on the engineering branch, skills and experience. Graduates may pursue technical roles, software-related careers, core engineering jobs or higher studies."
-    ),
+    # Computer and technology fields
+    ("What is Artificial Intelligence?", "Artificial Intelligence (AI) is a computing field that develops systems for tasks such as language processing, prediction and pattern recognition."),
+    ("What is Machine Learning?", "Machine Learning is a branch of AI where computer systems learn patterns from data."),
+    ("What is Data Science?", "Data Science uses data, statistics and computing to discover patterns and generate insights."),
+    ("What is Cyber Security?", "Cyber Security focuses on protecting computers, networks and data from digital threats."),
+    ("What is Information Technology?", "Information Technology involves computers, software, networks and information systems."),
+    ("What is Web Development?", "Web Development is creating websites and web applications using technologies such as HTML, CSS and JavaScript."),
+    ("What is Full Stack Development?", "Full Stack Development involves working on both the front end and back end of a web application."),
+    ("What is Cloud Computing?", "Cloud Computing provides computing resources and services over a network, commonly the internet."),
+    ("What is Software Testing?", "Software Testing checks whether software works as expected and helps identify defects."),
+    ("What is Database Management?", "Database Management involves storing, organising, retrieving and maintaining data."),
+    ("Is Python useful for IT jobs?", "Python is used in automation, web development, data analysis and other computing tasks. Job requirements vary."),
+    ("Can I learn AI after BCA?", "BCA mudichitu AI concepts and projects learn pannalaam. Advanced course admission requirements vary aagum."),
+    ("What jobs are available in AI?", "AI-related careers may include AI development, data analysis and machine learning roles, depending on qualifications and experience."),
+    ("Which computer course is good for beginners?", "Computer basics, programming fundamentals and web development are common starting points. Ungaloda interest-ai poruththu choose pannunga."),
 
-    # DIPLOMA AND POLYTECHNIC
-    (
-        "Are diploma courses available?",
-        "Excel Institutions Group includes a Polytechnic institution. Check its official course list for current diploma programmes, eligibility and admission details."
-    ),
-    (
-        "What is Polytechnic?",
-        "Polytechnic education commonly offers diploma programmes with practical and technical learning. Specific courses, duration and eligibility depend on the institution."
-    ),
-    (
-        "Can I join a diploma after 10th?",
-        "Entry eligibility depends on the diploma programme and applicable admission rules. Check the relevant Excel Polytechnic institution's official admission information."
-    ),
-    (
-        "What can I do after a diploma?",
-        "After a diploma, possible options may include employment, further technical studies or eligible lateral-entry pathways, depending on the diploma and current regulations."
-    ),
+    # Engineering
+    ("What is BE?", "BE stands for Bachelor of Engineering."),
+    ("What is the full form of BE?", "BE stands for Bachelor of Engineering."),
+    ("What is BTech?", "B.Tech stands for Bachelor of Technology."),
+    ("What is the difference between BE and BTech?", "Both are undergraduate engineering qualifications. Curriculum and naming institution and programme-ai poruthadhu."),
+    ("What is engineering eligibility?", "Engineering eligibility depends on the branch, qualifying subjects, marks and current admission rules."),
+    ("What is Computer Science Engineering?", "Computer Science Engineering covers computing, algorithms, programming and software-related systems."),
+    ("What is Mechanical Engineering?", "Mechanical Engineering focuses on machines, mechanical systems, design and manufacturing."),
+    ("What is Civil Engineering?", "Civil Engineering covers infrastructure such as buildings, roads, bridges and water systems."),
+    ("What is Electrical Engineering?", "Electrical Engineering studies electrical systems, circuits and power-related topics."),
+    ("What is Electronics Engineering?", "Electronics Engineering covers electronic circuits, devices and related technologies."),
+    ("What is AI Engineering?", "AI-related engineering study focuses on artificial intelligence, computing and intelligent systems. Verify the exact programme title and availability."),
+    ("Can I study engineering after diploma?", "Eligible diploma students may have further-study or lateral-entry options under applicable admission regulations."),
+    ("What jobs can I get after engineering?", "Career options depend on engineering branch, practical skills, projects and employer requirements."),
+    ("Engineering-ku enna qualification venum?", "Engineering eligibility branch, required school subjects and current admission rules-ai poruthadhu."),
+    ("Engineering mudichitu enna job kidaikkum?", "Career options engineering branch, practical skills and employer requirements-ai poruthadhu."),
 
-    # ARCHITECTURE
-    (
-        "What is Architecture?",
-        "Architecture involves planning and designing buildings and spaces. Check the official Excel Architecture institution's current programme list, entrance requirements and eligibility."
-    ),
-    (
-        "What is the eligibility for Architecture?",
-        "Architecture eligibility depends on the programme, required school subjects, qualifying marks and applicable entrance or aptitude requirements. Check the current official rules."
-    ),
-    (
-        "What jobs can I get after Architecture?",
-        "Depending on the qualification and professional requirements, architecture graduates may explore architectural design, planning, visualisation and related built-environment careers."
-    ),
+    # Polytechnic and diploma
+    ("What is Polytechnic?", "Polytechnic institutions commonly offer diploma-level technical education. Current programme list and eligibility-ai verify pannunga."),
+    ("What is a diploma course?", "Diploma is a qualification focused on a specific field. Duration and entry requirements vary by programme."),
+    ("What is the difference between diploma and degree?", "Diploma and degree qualifications differ in level, curriculum, duration and eligibility."),
+    ("What is Polytechnic eligibility?", "Polytechnic admission requirements depend on the programme and current admission rules."),
+    ("What jobs can I get after diploma?", "Career options depend on diploma field, practical skills and employer requirements."),
 
-    # PHARMACY
-    (
-        "What is Pharmacy?",
-        "Pharmacy is a field related to medicines, their use, preparation, safety and effects. Check the relevant Excel Pharmacy institution for current programmes and eligibility."
-    ),
-    (
-        "What Pharmacy courses are available?",
-        "Pharmacy programme availability depends on the institution and academic year. Please check the official Excel Pharmacy course list for current programmes and eligibility."
-    ),
-    (
-        "What is the eligibility for Pharmacy?",
-        "Pharmacy eligibility depends on the programme, qualifying subjects and applicable admission rules. Confirm the requirements with the official institution."
-    ),
+    # Architecture
+    ("What is Architecture?", "Architecture focuses on planning and designing buildings and spaces."),
+    ("What is BArch?", "B.Arch stands for Bachelor of Architecture. Check the current programme availability and admission requirements."),
+    ("What is Architecture eligibility?", "Architecture has specific subject and admission requirements that must be checked against current regulations."),
+    ("What jobs can I get after Architecture?", "Career options may include architecture-related design and planning roles, subject to professional qualifications and employer requirements."),
 
-    # NURSING AND HEALTH SCIENCES
-    (
-        "What Nursing courses are available?",
-        "Nursing programme availability and eligibility vary by institution and academic year. Check the official Excel Nursing institution course list for current details."
-    ),
-    (
-        "What is the eligibility for Nursing?",
-        "Nursing eligibility depends on the programme, school subjects, marks and applicable regulations. Confirm the current requirements with the relevant institution."
-    ),
-    (
-        "What is Health Sciences?",
-        "Health Sciences covers fields related to healthcare, health services and human wellbeing. Exact programmes and admission requirements vary by institution."
-    ),
-    (
-        "What is Physiotherapy?",
-        "Physiotherapy focuses on movement, physical function, rehabilitation and helping people improve mobility. Check the relevant institution for current programmes and eligibility."
-    ),
-    (
-        "What is Naturopathy and Yoga?",
-        "Naturopathy and Yoga programmes focus on natural health approaches, lifestyle practices and yoga-related study. Confirm the exact programme and eligibility with the institution."
-    ),
-    (
-        "What is Siddha?",
-        "Siddha is a traditional system of medicine practised in India. Check the relevant institution for programme availability and official admission requirements."
-    ),
-    (
-        "What is Homoeopathy?",
-        "Homoeopathy is a system of medicine with its own educational and professional regulations. Confirm programme availability and admission requirements with the relevant institution."
-    ),
+    # Pharmacy, Nursing and healthcare
+    ("What is Pharmacy?", "Pharmacy is a healthcare-related field concerned with medicines and their safe use. Verify programme availability and eligibility."),
+    ("What is BPharm?", "B.Pharm stands for Bachelor of Pharmacy. Check the institution for current course availability and admission rules."),
+    ("What is DPharm?", "D.Pharm stands for Diploma in Pharmacy. Check current availability and eligibility requirements."),
+    ("What is Pharmacy eligibility?", "Pharmacy admission requirements depend on the programme, qualifying subjects and current regulations."),
+    ("What is Nursing?", "Nursing is a healthcare profession focused on patient care. Programme eligibility and availability must be checked officially."),
+    ("What is BSc Nursing?", "B.Sc Nursing stands for Bachelor of Science in Nursing. Verify current course availability and admission requirements."),
+    ("What is Nursing eligibility?", "Nursing eligibility depends on the programme, required school subjects, marks and current regulations."),
+    ("What is Physiotherapy?", "Physiotherapy focuses on movement, physical function and rehabilitation. Check current programme information."),
+    ("What is Naturopathy?", "Naturopathy is a health-related field associated with natural approaches to wellbeing. Verify approved programme details and requirements."),
+    ("What is Siddha?", "Siddha is a traditional system of medicine. Check current programme availability and professional regulations."),
+    ("What is Homoeopathy?", "Homoeopathy is a system of medicine with specific educational and professional regulations. Verify current course information."),
 
-    # EDUCATION AND SCHOOL
-    (
-        "What is Education course?",
-        "Education programmes prepare students for roles related to teaching and learning. The exact qualifications and eligibility depend on the programme and current regulations."
-    ),
-    (
-        "What courses are available after graduation?",
-        "After graduation, you may explore eligible postgraduate programmes, professional qualifications or skill-development courses. Options depend on your degree and career goal."
-    ),
+    # Admission, duration and careers
+    ("How long does a course take?", "Course duration programme and applicable regulations-ai poruthadhu. Course name sollunga; more specific guidance tharen."),
+    ("What is a semester?", "Semester is an academic period within a course. Number and duration depend on the programme structure."),
+    ("What documents are required for admission?", "Common documents may include qualifying exam records, transfer certificate, identity documents and photographs. Official checklist-ai verify pannunga."),
+    ("When does admission start?", "Admission dates institution, programme and academic year-ai poruthadhu. Official announcements check pannunga."),
+    ("Are scholarships available?", "Scholarship availability and eligibility scheme and institution-ai poruthadhu. Official scholarship details verify pannunga."),
+    ("Can I change my course after admission?", "Course change institution rules, seat availability and eligibility-ai poruthadhu. Admissions office-ai contact pannunga."),
+    ("Can I study PG after graduation?", "Eligible graduates can explore postgraduate programmes according to degree and admission requirements."),
+    ("How do I prepare for a course interview?", "Subject basics review pannunga, course interest explain panna practice pannunga, required documents ready pannunga."),
+    ("Course mudikka evlo years aagum?", "Course duration programme-ai poruthadhu. Exact duration-ku official course details check pannunga."),
+    ("Course-ku epdi apply pannurathu?", "Relevant institution-oda official admission page-la application steps and deadlines check pannunga."),
+    ("Course mudichaa job guarantee irukka?", "Course mudichadhunaala mattum job guarantee illa. Skills, projects, experience and employer requirements mukkiyam."),
+    ("Course syllabus enga paarkalam?", "Current syllabus-ku institution-oda official website or department office-ai contact pannunga."),
+    ("Course fees evlo?", "Exact fees course and institution-ai poruthadhu. Current fee structure-ku official admissions office-ai contact pannunga."),
+    ("Enakku suitable-aana course eppadi choose pannurathu?", "Ungaloda qualification, favourite subjects and career goal sollunga. Suitable options compare panna help pannuren."),
+]
 
-    # FEES, ADMISSION, DURATION
-    (
-        "What are the course fees?",
-        "Course fees vary by institution, programme and academic year. Contact the relevant Excel institution or check its official fee information for the current amount."
-    ),
-    (
-        "How can I apply for a course?",
-        "Check the official website of the institution offering your chosen course for the current application process, required documents, eligibility and deadlines."
-    ),
-    (
-        "What documents are required for admission?",
-        "Admission documents vary by programme. Commonly requested documents may include qualifying examination records, transfer or conduct certificates, identity documents and photographs. Confirm the exact list with the institution."
-    ),
-    (
-        "Can I change my course?",
-        "Course changes depend on the institution's rules, seat availability, eligibility and the stage of study. Contact the admissions office for guidance."
-    ),
-    (
-        "Are scholarships available for courses?",
-        "Scholarship eligibility and availability depend on the institution, scheme and student qualifications. Check the official scholarship information or contact the admissions office."
-    ),
-    (
-        "Does the college provide placement?",
-        "Placement support and opportunities depend on the institution, programme, student eligibility and employer requirements. Check the relevant institution's official placement information."
-    ),
 
-    # COMMON TANGlish QUESTIONS
-    (
-        "Course duration evlo?",
-        "Course duration programme-ai poruthadhu. Neenga endha course pathi kekkureenga nu sollunga; official course details-la exact duration verify pannunga."
-    ),
-    (
-        "Course fees evlo?",
-        "Course fees institution, programme and academic year-ai poruthadhu. Exact fees-ku relevant Excel institution office or official fee details-ai contact pannunga."
-    ),
-    (
-        "Enakku enna course suitable?",
-        "Ungalukku suitable-aana course suggest panna, unga 12th group, interest and future career goal sollunga."
-    ),
-    (
-        "Computer course irukka?",
-        "Excel Institutions Group-la computing-related fields irukkum institutions irukku. Exact computer courses and current availability-ai official course list-la verify pannunga."
-    ),
-    (
-        "Arts and Science courses enna?",
-        "Arts and Science programmes subject and academic year-ku etha maadhiri vary aagum. Excel College for Commerce and Science official course list-la current UG and PG programmes check pannunga."
-    ),
-    (
-        "PG padikka enna qualification venum?",
-        "PG admission-ku usually relevant bachelor's degree thevai; exact eligibility programme and institution rules-ai poruthadhu. Official course eligibility details check pannunga."
-    ),
+# Extra general college FAQs
+GENERAL_FAQS = [
+    ("What is Excel Institutions Group?", "Excel Institutions Group includes institutions across multiple educational and professional fields. For the current official list, visit https://excelinstitutions.com/."),
+    ("Where is Excel College for Commerce and Science?", "The college address listed for Excel College for Commerce and Science is NH-544, Salem Main Road, Sankari West, Pallakkapalayam, Komarapalayam, Namakkal District, Tamil Nadu - 637303. Please verify current details with the official website."),
+    ("How can I contact Excel Institutions?", "For current contact details, visit https://excelinstitutions.com/ or the relevant institution's official contact page."),
+    ("What facilities are available?", "Facilities vary by institution and campus. Please check the relevant institution's official website for current details."),
+    ("Is hostel available?", "Hostel availability and rules vary by institution and campus. Confirm current availability with the admissions office."),
+    ("What about placements?", "Placement activities and outcomes vary by institution, programme and year. Check the relevant institution's official placement information."),
+    ("What is the admission procedure?", "Admission steps depend on the institution and programme. Check the official admissions page for eligibility, documents and deadlines."),
+    ("What is the scholarship procedure?", "Scholarship eligibility and application procedures depend on the scheme. Check the institution's official scholarship details."),
+    ("What institutions are available in Excel Group?", "Excel Institutions Group has institutions in different fields. Check https://excelinstitutions.com/ for the current official list."),
+    ("What is the full form of ECCS?", "The institution name is Excel College for Commerce and Science."),
 ]
 
 
 def create_database():
-    con = sqlite3.connect(DATABASE)
-    cursor = con.cursor()
+    """Create FAQ table if needed and safely add new FAQ entries."""
+    connection = sqlite3.connect(str(DATABASE))
 
-    # Keep the existing FAQ table and its data.
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS faq (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            question TEXT NOT NULL UNIQUE,
-            answer TEXT NOT NULL
-        )
-    """)
+    try:
+        cursor = connection.cursor()
 
-    # Add only new questions. Existing answers are not overwritten.
-    cursor.executemany("""
-        INSERT OR IGNORE INTO faq (question, answer)
-        VALUES (?, ?)
-    """, COURSE_FAQS)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS faq (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                question TEXT NOT NULL UNIQUE,
+                answer TEXT NOT NULL
+            )
+        """)
 
-    con.commit()
+        # Support an older FAQ table that has question and answer but no id.
+        cursor.execute("PRAGMA table_info(faq)")
+        columns = {row[1] for row in cursor.fetchall()}
 
-    cursor.execute("SELECT COUNT(*) FROM faq")
-    total = cursor.fetchone()[0]
+        if "question" not in columns or "answer" not in columns:
+            raise RuntimeError(
+                "Existing faq table has an unexpected schema. "
+                "Please inspect college.db before changing it."
+            )
 
-    con.close()
+        all_faqs = GENERAL_FAQS + COURSE_FAQS
 
-    print("Course FAQs added successfully!")
-    print("Total FAQs in database:", total)
+        for question, answer in all_faqs:
+            # Never display the abbreviation in chatbot answers.
+            answer = answer.replace(
+                "ECCS", "Excel College for Commerce and Science"
+            )
+
+            cursor.execute(
+                """
+                SELECT 1 FROM faq
+                WHERE LOWER(TRIM(question)) = LOWER(TRIM(?))
+                LIMIT 1
+                """,
+                (question,)
+            )
+
+            if cursor.fetchone() is None:
+                cursor.execute(
+                    "INSERT INTO faq (question, answer) VALUES (?, ?)",
+                    (question, answer)
+                )
+
+        connection.commit()
+
+        cursor.execute("SELECT COUNT(*) FROM faq")
+        count = cursor.fetchone()[0]
+
+        print(f"Database ready. Total FAQ questions: {count}")
+
+    except Exception:
+        connection.rollback()
+        raise
+
+    finally:
+        connection.close()
 
 
 if __name__ == "__main__":
