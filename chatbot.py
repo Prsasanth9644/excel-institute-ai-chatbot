@@ -6,7 +6,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 from database import COURSE_FAQS, GENERAL_FAQS
-
+INSTITUTIONS = []
+COURSES = {}
 
 DATABASE = "college.db"
 
