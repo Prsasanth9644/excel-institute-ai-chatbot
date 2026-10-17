@@ -1,35 +1,52 @@
+
 const input = document.getElementById("message");
 const chatBox = document.getElementById("chat-box");
+const typing = document.getElementById("typing-indicator");
+const sendButton = document.getElementById("send-btn");
+
+let isSending = false;
 
 window.addEventListener("load", () => {
     input.focus();
 });
 
-input.addEventListener("keydown", function (event) {
-    if (event.key === "Enter" && !event.shiftKey) {
+// Enter key
+input.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
         event.preventDefault();
         sendMessage();
     }
 });
 
+// Quick buttons: Institutions, Courses, Fees, Admission etc.
+function askQuestion(question) {
+    if (isSending) return;
+
+    input.value = question;
+    sendMessage();
+}
+
+// Send question to existing Flask backend
 async function sendMessage() {
     const message = input.value.trim();
 
-    if (!message) {
-        input.focus();
+    if (!message || isSending) {
+        if (!isSending) input.focus();
         return;
     }
 
-    chatBox.innerHTML += `
-        <div class="user-message">
-            ${escapeHtml(message)}
-        </div>
-    `;
+    isSending = true;
+    sendButton.disabled = true;
 
-    chatBox.scrollTop = chatBox.scrollHeight;
+    // Display user question
+    chatBox.insertAdjacentHTML(
+        "beforeend",
+        `<div class="user-message">${escapeHtml(message)}</div>`
+    );
 
     input.value = "";
-    input.focus();
+    typing.style.display = "flex";
+    chatBox.scrollTop = chatBox.scrollHeight;
 
     try {
         const response = await fetch("/chat", {
@@ -37,35 +54,69 @@ async function sendMessage() {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                message: message
-            })
+            body: JSON.stringify({ message })
         });
+
+        if (!response.ok) {
+            throw new Error("Server response error");
+        }
 
         const data = await response.json();
 
-        chatBox.innerHTML += `
-            <div class="bot-message">
-                ${escapeHtml(data.response).replace(/\n/g, "<br>")}
-            </div>
-        `;
+        // Display the chatbot answer
+        const row = document.createElement("div");
+        row.className = "bot-row";
 
-        chatBox.scrollTop = chatBox.scrollHeight;
-        input.focus();
+        const avatar = document.createElement("div");
+        avatar.className = "avatar";
+        avatar.textContent = "🤖";
+
+        const area = document.createElement("div");
+        area.className = "bubble-area";
+
+        const bubble = document.createElement("div");
+        bubble.className = "bot-bubble";
+        bubble.textContent =
+            data.response || "Sorry, I couldn't find an answer.";
+
+        const time = document.createElement("div");
+        time.className = "time";
+        time.textContent = "Excel AI Assistant";
+
+        area.appendChild(bubble);
+        area.appendChild(time);
+        row.appendChild(avatar);
+        row.appendChild(area);
+        chatBox.appendChild(row);
 
     } catch (error) {
-        console.error(error);
+        console.error("Chat error:", error);
 
-        chatBox.innerHTML += `
-            <div class="bot-message">
-                Sorry, something went wrong. Please try again.
-            </div>
-        `;
+        const row = document.createElement("div");
+        row.className = "bot-row";
 
+        const bubble = document.createElement("div");
+        bubble.className = "bot-bubble";
+        bubble.textContent =
+            "Sorry, connection problem. Please try again.";
+
+        const area = document.createElement("div");
+        area.className = "bubble-area";
+        area.appendChild(bubble);
+
+        row.appendChild(area);
+        chatBox.appendChild(row);
+
+    } finally {
+        typing.style.display = "none";
+        isSending = false;
+        sendButton.disabled = false;
+        chatBox.scrollTop = chatBox.scrollHeight;
         input.focus();
     }
 }
 
+// Safely display user messages
 function escapeHtml(text) {
     const div = document.createElement("div");
     div.textContent = text;
