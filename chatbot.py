@@ -1,3 +1,99 @@
+import re
+import sqlite3
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+from database import create_database, DATABASE
+
+
+# =========================================================
+# DATABASE SETUP
+# =========================================================
+
+def load_faqs():
+    """Load FAQ question-answer pairs from the database."""
+    try:
+        create_database()
+        with sqlite3.connect(str(DATABASE)) as connection:
+            rows = connection.execute(
+                "SELECT question, answer FROM faq"
+            ).fetchall()
+        return rows
+    except Exception as error:
+        print("FAQ database error:", error)
+        return []
+
+
+# =========================================================
+# TEXT NORMALIZATION
+# =========================================================
+
+REPLACEMENTS = {
+    "collage": "college",
+    "colleg": "college",
+    "collge": "college",
+    "admisson": "admission",
+    "admisssion": "admission",
+    "eligiblity": "eligibility",
+    "eligibilty": "eligibility",
+    "placment": "placement",
+    "scholrship": "scholarship",
+    "hostel iruka": "hostel",
+    "hostel irukka": "hostel",
+    "hostel available ah": "hostel",
+    "iruka": "available",
+    "irukka": "available",
+    "irukaa": "available",
+    "enga": "where",
+    "yenga": "where",
+    "ethana": "how many",
+    "evlo": "how much",
+    "evalo": "how much",
+    "padika": "study",
+    "padikka": "study",
+    "padikkanum": "study",
+    "venum": "want",
+    "venuma": "want",
+    "sollu": "tell",
+    "sollunga": "tell",
+    "enna": "what",
+    "epdi": "how",
+    "eppadi": "how",
+}
+
+
+def normalize(text):
+    text = (text or "").lower().strip()
+    for old, new in sorted(
+        REPLACEMENTS.items(), key=lambda item: len(item[0]), reverse=True
+    ):
+        text = text.replace(old, new)
+
+    text = re.sub(r"[^\w\s\u0B80-\u0BFF.+&-]", " ", text)
+    text = re.sub(r"\s+", " ", text)
+    return text.strip()
+
+
+# =========================================================
+# EXCEL GROUP INSTITUTION LIST
+# =========================================================
+
+def is_institution_list_question(text):
+    text = normalize(text)
+    phrases = [
+        "institution list", "institutions list", "list of institutions",
+        "all institutions", "institution names", "college list",
+        "colleges list", "list of colleges", "all colleges",
+        "excel group colleges", "excel group institutions",
+        "what institutions", "which institutions", "what colleges",
+        "which colleges", "college names", "ella college",
+        "ella colleges", "ella institution", "ella institutions",
+        "moththa college", "full college list", "available institutions",
+        "institutions available", "how many colleges",
+        "how many institutions",
+    ]
+    return any(phrase in text for phrase in phrases)
 
 
 def institution_list_answer():
